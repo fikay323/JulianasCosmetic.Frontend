@@ -18,18 +18,68 @@ const jakarta = Plus_Jakarta_Sans({
 	display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://julianas-cosmetic-frontend.vercel.app";
+
 export const metadata: Metadata = {
-	title: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+	metadataBase: new URL(siteUrl),
+	title: {
+		default: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		template: "%s | Juliana's Cosmetics",
+	},
 	description:
 		"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+	applicationName: "Juliana's Cosmetics",
+	authors: [{ name: "Juliana's Cosmetics" }],
+	generator: "Next.js",
+	keywords: [
+		"Juliana's Cosmetics",
+		"African Botanicals",
+		"Melanin Skincare",
+		"Clean Beauty Nigeria",
+		"Luxury Skincare Lagos",
+		"Cold-Pressed Botanical Oils",
+		"NAFDAC Approved Skincare",
+	],
 	icons: {
-		icon: "/favicon.ico",
+		icon: [
+			{ url: "/icon.png", type: "image/png" },
+			{ url: "/favicon.ico", sizes: "any" },
+		],
+		apple: "/apple-icon.png",
+		shortcut: "/icon.png",
+	},
+	manifest: "/manifest.json",
+	openGraph: {
+		type: "website",
+		locale: "en_US",
+		url: siteUrl,
+		siteName: "Juliana's Cosmetics",
+		title: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		description:
+			"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+		images: [
+			{
+				url: "/og-image.jpg",
+				width: 1200,
+				height: 630,
+				alt: "Juliana's Cosmetics - Luxury Clean Botanical Skincare",
+				type: "image/jpeg",
+			},
+		],
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		description:
+			"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+		images: ["/og-image.jpg"],
 	},
 };
 
 export const viewport: Viewport = {
 	width: "device-width",
 	initialScale: 1,
+	themeColor: "#FAF9F6",
 };
 
 export default function RootLayout({

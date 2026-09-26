@@ -1,0 +1,21 @@
+{
+	"name": "Juliana's Cosmetics",
+	"short_name": "Juliana's",
+	"description": "Luxury clean botanical skincare formulated for melanin-rich skin",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#FAF9F6",
+	"theme_color": "#FAF9F6",
+	"icons": [
+		{
+			"src": "/icon.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		},
+		{
+			"src": "/apple-icon.png",
+			"sizes": "180x180",
+			"type": "image/png"
+		}
+	]
+}
