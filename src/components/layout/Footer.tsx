@@ -65,11 +65,11 @@ export function Footer(): React.JSX.Element {
 						<p className="text-xs leading-relaxed text-on-primary-container">
 							L&apos;Élixir Editorial &amp; Aura Botanicals Apothecary. Luxury clean skincare marrying African plant wisdom with clinically proven cellular bio-actives.
 						</p>
-						<div className="pt-2">
+						{/* <div className="pt-2">
 							<span className="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-secondary">
 								<span>Lagos • Abuja • London</span>
 							</span>
-						</div>
+						</div> */}
 					</div>
 
 					{/* Catalog Navigation */}
