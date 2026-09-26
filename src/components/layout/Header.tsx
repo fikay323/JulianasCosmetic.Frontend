@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Menu, X, ShieldCheck, Sparkles } from "lucide-react";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 
 export function Header(): React.JSX.Element {
@@ -14,7 +14,7 @@ export function Header(): React.JSX.Element {
 		{ label: "Home", href: "/" },
 		{ label: "Catalog", href: "/products" },
 		{ label: "Rituals", href: "/#rituals" },
-		{ label: "Admin Portal", href: "/admin/orders" },
+		{ label: "Admin Portal", href: "/admin" },
 	];
 
 	return (
