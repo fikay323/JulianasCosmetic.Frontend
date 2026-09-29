@@ -26,10 +26,10 @@ export function TrustPillars(): React.JSX.Element {
 		},
 		{
 			icon: Leaf,
-			title: "African Native Botanicals",
-			subtitle: "Ethical Harvest",
+			title: "Imported French Formulations",
+			subtitle: "Direct From Paris",
 			description:
-				"Cold-pressed wild Kalahari melon seed, Nigerian baobab oil, Nilotica shea, and hibiscus sustainably wild-harvested.",
+				"Authentic European luxury formulations engineered in Paris with pure botanical extracts and clinical grade complexes.",
 		},
 		{
 			icon: CheckCircle2,

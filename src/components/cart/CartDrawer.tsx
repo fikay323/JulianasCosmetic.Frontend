@@ -78,7 +78,7 @@ export function CartDrawer(): React.JSX.Element {
 								Your bag is empty
 							</h3>
 							<p className="mt-2 max-w-xs text-sm text-on-surface-variant">
-								Explore our dermatologist-formulated clean African botanicals engineered for melanin-rich skin.
+								Explore our dermatologist-formulated luxury clean skincare imported directly from Paris.
 							</p>
 							<Link
 								href="/products"

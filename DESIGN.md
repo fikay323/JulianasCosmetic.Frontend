@@ -10,7 +10,7 @@
 
 ## 1. Executive Summary & Brand Identity
 
-The design system for **Juliana's Cosmetics** embodies **"L'Élixir Editorial"**: an intentional synthesis of high-fashion editorial publication aesthetics and quiet-luxury apothecary discipline. Developed specifically for dermatologically rigorous, clean botanical formulations catering to African melanin-rich skin, the aesthetic prioritizes:
+The design system for **Juliana's Cosmetics** embodies **"L'Élixir Editorial"**: an intentional synthesis of high-fashion editorial publication aesthetics and quiet-luxury apothecary discipline. Developed specifically for dermatologically rigorous, clean luxury skincare formulations imported directly from Paris, the aesthetic prioritizes:
 
 - **Warm Minimalist Apothecary**: Clean, uncluttered layouts with generous negative space, replacing sterile clinical whites with warm alabaster and linen tones (`#FAF9F6`).
 - **High-Fashion Editorial Typography**: Dramatic, literary serif headlines (**Playfair Display**) contrasted with hyper-legible, geometric sans-serif body copy and micro-accents (**Plus Jakarta Sans**). All metadata labels, categories, and technical skincare specs employ wide tracking (`0.12em` – `0.16em`) and uppercase formatting.
@@ -172,7 +172,7 @@ The typographical system establishes an editorial dialogue between classical ser
     1. **NAFDAC Certified**: Approved Nigerian safety and clinical efficacy standards.
     2. **Dermatologist Tested**: Formulated specifically for melanin-rich skin barriers.
     3. **Cruelty-Free & Vegan**: Certified clean, ethical bio-active ingredients.
-    4. **Ethically Sourced**: Sustainable indigenous African botanicals (Baobab, Shea, Moringa).
+    4. **Imported from Paris**: Direct French botanical extracts and clinical complexes.
 - **Shop by Skin Concern**:
   - Category cards: Hyperpigmentation, Barrier Repair, Deep Hydration, Sun Protection.
 - **Featured Botanical Product Grid**:
@@ -214,7 +214,7 @@ The typographical system establishes an editorial dialogue between classical ser
     - Primary CTA: `"Add to Bag — ₦XX,XXX"` (`bg-primary text-white rounded-full py-4 text-center`).
     - Same-Day Dispatch Timer: "Order within 3 hrs for same-day dispatch in Lagos & Abuja".
   - **Radix UI Accordion Disclosure Sections**:
-    1. **Active Bio-Botanicals**: Clinical breakdown of active ingredients (Niacinamide, Copper Peptides, Baobab Oil).
+    1. **Active Bio-Botanicals**: Clinical breakdown of active ingredients (Niacinamide, Copper Peptides, French Botanical Oils).
     2. **Full INCI Transparency**: Complete ingredient list disclosures.
     3. **Application Ritual**: Step-by-step application regimen diagram.
     4. **Safety & NAFDAC Certification**: Registration number and clinical test certifications.
@@ -265,7 +265,7 @@ The typographical system establishes an editorial dialogue between classical ser
 
      *Order Items:*
      1. Luminous Peptide Glaze Serum (50ml) x 1 - ₦22,000
-     2. Shea & Baobab Melt Soufflé (50ml) x 2 - ₦28,000
+     2. Botanical Hydration Crème (50ml) x 2 - ₦28,000
 
      *Items Subtotal:* ₦50,000
 

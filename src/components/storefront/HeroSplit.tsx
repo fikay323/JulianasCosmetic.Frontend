@@ -21,18 +21,18 @@ export function HeroSplit(): React.JSX.Element {
 								<span className="relative inline-flex h-2 w-2 rounded-full bg-secondary" />
 							</span>
 							<span className="text-[11px] font-bold tracking-[0.14em] uppercase text-primary">
-								Organic Botanical Science • Lagos &amp; Paris
+								French Dermatological Formulations • Imported from Paris
 							</span>
 						</div>
 
 						{/* Headline in Playfair Display */}
 						<h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-primary leading-[1.12]">
-							Awaken Radiant Skin with Pure African Botanicals
+							Awaken Radiant Skin with Imported Parisian Formulations
 						</h1>
 
 						{/* Brand narrative */}
 						<p className="max-w-xl text-base sm:text-lg font-light leading-relaxed text-on-surface-variant">
-							Dermatologist-formulated clean botanical elixirs, cold-pressed indigenous African seed oils, and dermatologically proven bio-actives engineered specifically for melanin-rich skin barriers.
+							Dermatologist-formulated clean luxury elixirs, imported French botanical complexes, and clinically proven bio-actives engineered for incandescent radiance and cellular barrier health.
 						</p>
 
 						{/* CTA Buttons */}

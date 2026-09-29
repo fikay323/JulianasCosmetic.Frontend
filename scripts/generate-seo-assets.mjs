@@ -182,8 +182,8 @@ async function generateAssets() {
 		<div class="main-content">
 			<div class="text-col">
 				<div class="pre-title">Juliana's Cosmetics</div>
-				<h1>Radiance Grounded in <span>African Botanicals</span></h1>
-				<p>Potent, clinically backed skincare consciously crafted with cold-pressed native oils and bio-actives for melanin-rich & sensitive skin barriers.</p>
+				<h1>Radiance Grounded in <span>Parisian Elegance</span></h1>
+				<p>Potent, clinically backed luxury skincare consciously crafted in France with refined botanical complexes and pure bio-actives for radiant skin.</p>
 			</div>
 			<div class="logo-col">
 				<img class="logo-img" src="${logoDataUrl}" alt="Juliana's Cosmetics Logo" />
@@ -193,8 +193,8 @@ async function generateAssets() {
 
 		<div class="footer-bar">
 			<div class="pillars">
-				<div class="pillar-item">✓ Melanin Barrier Science</div>
-				<div class="pillar-item">✓ 100% Cold-Pressed Actives</div>
+				<div class="pillar-item">✓ Imported from Paris</div>
+				<div class="pillar-item">✓ Clinical Grade Bio-Actives</div>
 				<div class="pillar-item">✓ WhatsApp Concierge Dispatch</div>
 			</div>
 			<div class="domain">julianas-cosmetic.com</div>

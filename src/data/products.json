@@ -18,29 +18,29 @@
 			"https://images.unsplash.com/photo-1608248597359-5989e248b652?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "An ultra-concentrated botanical elixir infusing multi-peptides, cold-pressed Nigerian baobab oil, and 3% niacinamide to illuminate melanin-rich skin while reinforcing cellular lipid barriers.",
+		"description": "An ultra-concentrated Parisian botanical elixir infusing multi-peptides, pure French botanical seed oils, and 3% niacinamide to illuminate skin while reinforcing cellular lipid barriers.",
 		"formulation": {
 			"phLevel": "5.2 - 5.5",
 			"texture": "Silky, fast-absorbing micro-glaze",
-			"skinType": "All skin types, optimized for melanin-rich & sensitive skin",
+			"skinType": "All skin types, optimized for delicate & sensitive skin",
 			"keyActives": [
 				"5% Multi-Peptide Matrix",
 				"3% Niacinamide",
-				"Cold-Pressed Baobab Oil",
+				"French Camellia Seed Oil",
 				"Botanical Hyaluronic Acid"
 			]
 		},
 		"accordions": {
-			"bioActives": "5% Multi-Peptide Complex stimulates collagen renewal and epidermal elasticity. 3% Niacinamide smooths hyperpigmentation and refines pore architecture. Cold-pressed Baobab Oil provides concentrated Omega-3, 6, and 9 essential fatty acids.",
-			"inci": "Aqua (Water), Adansonia Digitata (Baobab) Seed Oil, Niacinamide, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Sodium Hyaluronate, Glycerin, Butylene Glycol, Carbomer, Polysorbate 20, Phenoxyethanol, Ethylhexylglycerin, Tocopherol (Vitamin E).",
+			"bioActives": "5% Multi-Peptide Complex stimulates collagen renewal and epidermal elasticity. 3% Niacinamide smooths hyperpigmentation and refines pore architecture. French Camellia Seed Oil provides concentrated Omega-3, 6, and 9 essential fatty acids.",
+			"inci": "Aqua (Water), Camellia Oleifera Seed Oil, Niacinamide, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7, Sodium Hyaluronate, Glycerin, Butylene Glycol, Carbomer, Polysorbate 20, Phenoxyethanol, Ethylhexylglycerin, Tocopherol (Vitamin E).",
 			"ritual": "Dispense 3–4 drops onto freshly cleansed, damp skin. Gently press into face, neck, and décolletage using upward lymphatic sweeping motions. Follow with Botanical Hydration Crème. Use morning and evening.",
 			"nafdac": "NAFDAC Reg. No. 04-9218. Verified and manufactured in adherence to strict cGMP cosmetic guidelines for efficacy and safety."
 		}
 	},
 	{
-		"id": "kalahari-melon-sun-shield-spf-50",
-		"slug": "kalahari-melon-sun-shield-spf-50",
-		"name": "Kalahari Melon Sun Shield SPF 50",
+		"id": "parisian-mineral-sun-shield-spf-50",
+		"slug": "parisian-mineral-sun-shield-spf-50",
+		"name": "Parisian Mineral Sun Shield SPF 50",
 		"tagline": "Invisible Broad Spectrum Botanical Photoprotection",
 		"price": 28000,
 		"category": "Suncare",
@@ -55,30 +55,30 @@
 			"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "A weightless fluid SPF 50 engineered specifically to leave zero white cast or ashiness on melanin-rich complexions, charged with antioxidant-dense wild Kalahari melon seed oil and mineral photoprotectors.",
+		"description": "A weightless fluid SPF 50 engineered specifically to leave zero white cast or ashiness, formulated in France with antioxidant-dense botanical seed oils and mineral photoprotectors.",
 		"formulation": {
 			"phLevel": "6.0 - 6.4",
 			"texture": "Ultra-sheer dewy fluid, non-comedogenic",
 			"skinType": "All Fitzpatrick skin phototypes (I - VI)",
 			"keyActives": [
-				"Wild Kalahari Melon Seed Oil",
+				"French Plum & Grape Seed Oil",
 				"Zinc Oxide (Micro-Dispersed)",
 				"Ectoin Barrier Shield",
 				"Vitamin C Ester"
 			]
 		},
 		"accordions": {
-			"bioActives": "Wild Kalahari Melon Seed Oil contains twice the essential fatty acid concentration of argan oil, protecting against cellular photo-damage. Ectoin shields skin from infrared radiation and atmospheric pollution.",
-			"inci": "Aqua, Citrullus Lanatus (Kalahari Melon) Seed Oil, Zinc Oxide, Ethylhexyl Methoxycinnamate, Ectoin, Ascorbyl Tetraisopalmitate, Squalane, Cetearyl Alcohol, Glyceryl Stearate, Polyhydroxystearic Acid, Caprylyl Glycol, Silica.",
+			"bioActives": "Pure French botanical seed oil shields against cellular photo-damage while providing lightweight, non-greasy lipid protection. Ectoin shields skin from infrared radiation and atmospheric pollution.",
+			"inci": "Aqua, Vitis Vinifera (Grape) Seed Oil, Prunus Domestica Seed Oil, Zinc Oxide, Ethylhexyl Methoxycinnamate, Ectoin, Ascorbyl Tetraisopalmitate, Squalane, Cetearyl Alcohol, Glyceryl Stearate, Polyhydroxystearic Acid, Caprylyl Glycol, Silica.",
 			"ritual": "Apply liberally as the final step of your morning skincare ritual, 15 minutes prior to sun exposure. Reapply every 2 hours or following swimming, sweating, or towel drying.",
 			"nafdac": "NAFDAC Reg. No. 04-8842. Broad spectrum UVA/UVB protection tested to ISO 24444 standards."
 		}
 	},
 	{
-		"id": "baobab-gentle-purifying-cleanser",
-		"slug": "baobab-gentle-purifying-cleanser",
-		"name": "Baobab Gentle Purifying Cleanser",
-		"tagline": "Lipid-Sparing Botanical Jelly Cleanser",
+		"id": "botanical-purifying-jelly-cleanser",
+		"slug": "botanical-purifying-jelly-cleanser",
+		"name": "Botanical Purifying Jelly Cleanser",
+		"tagline": "Lipid-Sparing French Botanical Jelly Cleanser",
 		"price": 24500,
 		"category": "Cleansers",
 		"stockStatus": "In Stock",
@@ -92,21 +92,21 @@
 			"https://images.unsplash.com/photo-1556228722-d0b777a83d73?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1608248597359-5989e248b652?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "A gentle low-foaming jelly cleanser that removes waterproof cosmetics, environmental particulates, and excess sebum without stripping the skin's delicate moisture mantle.",
+		"description": "A gentle low-foaming jelly cleanser formulated in France that removes waterproof cosmetics, environmental particulates, and excess sebum without stripping the skin's delicate moisture mantle.",
 		"formulation": {
 			"phLevel": "5.5",
 			"texture": "Silken gel-to-milk emulsion",
 			"skinType": "Sensitive, dry, and combination skin",
 			"keyActives": [
-				"Hydrolyzed Baobab Seed Extract",
-				"Moringa Oleifera Seed Peptide",
-				"Chamomile Hydrosol",
+				"Hydrolyzed French Botanical Proteins",
+				"French Chamomile Hydrosol",
+				"Rosa Damascena Water",
 				"Panthenol (Vitamin B5)"
 			]
 		},
 		"accordions": {
-			"bioActives": "Hydrolyzed Baobab protein forms a protective moisture veil during cleansing. Moringa Seed peptides gently chelate airborne heavy metals and urban micro-pollutants.",
-			"inci": "Aqua, Glycerin, Sodium Cocoyl Isethionate, Adansonia Digitata (Baobab) Seed Extract, Moringa Oleifera Seed Extract, Chamomilla Recutita Flower Water, Panthenol, Xanthan Gum, Citric Acid, Benzyl Alcohol, Dehydroacetic Acid.",
+			"bioActives": "Hydrolyzed French plant proteins form a protective moisture veil during cleansing. Chamomile flower hydrosol and rose water soothe cutaneous reactivity and calm inflammation.",
+			"inci": "Aqua, Glycerin, Sodium Cocoyl Isethionate, Hydrolyzed Wheat Protein, Chamomilla Recutita Flower Water, Rosa Damascena Flower Water, Panthenol, Xanthan Gum, Citric Acid, Benzyl Alcohol, Dehydroacetic Acid.",
 			"ritual": "Massage 1–2 pumps onto damp skin in circular motions for 60 seconds. Rinse thoroughly with lukewarm water. Pat dry with an organic cotton cloth.",
 			"nafdac": "NAFDAC Reg. No. 04-7193. Hypoallergenic and ophthalmologist tested for eye safety."
 		}
@@ -115,7 +115,7 @@
 		"id": "botanical-hydration-creme",
 		"slug": "botanical-hydration-creme",
 		"name": "Botanical Hydration Crème",
-		"tagline": "Ceramide Infused Nilotica Deep Lipid Replenishment",
+		"tagline": "Ceramide Infused French Botanical Lipid Replenishment",
 		"price": 35000,
 		"category": "Moisturisers",
 		"stockStatus": "In Stock",
@@ -129,30 +129,30 @@
 			"https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "A sumptuous, cushiony moisturiser featuring certified organic Ugandan Nilotica shea butter, botanical ceramides, and fermented yeast filtrates to lock in 72-hour moisture.",
+		"description": "A sumptuous, cushiony moisturiser formulated in Paris featuring French plant-derived squalane, multi-ceramides, and fermented yeast filtrates to lock in 72-hour moisture.",
 		"formulation": {
 			"phLevel": "5.4 - 5.8",
 			"texture": "Velvety whipped cloud crème",
 			"skinType": "Normal to severely dehydrated skin",
 			"keyActives": [
-				"Raw Nilotica Shea Butter",
+				"French Plant Squalane",
 				"Ceramide NP/AP/EOP Complex",
 				"Fermented Galactomyces",
 				"Centella Asiatica"
 			]
 		},
 		"accordions": {
-			"bioActives": "Ceramide Complex NP, AP, and EOP mirrors the natural lipid composition of the human stratum corneum. Nilotica Shea butter delivers high concentrations of oleic acid for velvety barrier cushioning.",
-			"inci": "Aqua, Butyrospermum Parkii (Nilotica Shea) Butter, Ceramide NP, Ceramide AP, Ceramide EOP, Phytosphingosine, Cholesterol, Galactomyces Ferment Filtrate, Centella Asiatica Leaf Extract, Sodium Lauroyl Lactylate, Carbomer, Phenoxyethanol.",
+			"bioActives": "Ceramide Complex NP, AP, and EOP mirrors the natural lipid composition of the human stratum corneum. Plant squalane delivers high concentrations of pure emollients for velvety barrier cushioning.",
+			"inci": "Aqua, Squalane, Butyrospermum Parkii Butter, Ceramide NP, Ceramide AP, Ceramide EOP, Phytosphingosine, Cholesterol, Galactomyces Ferment Filtrate, Centella Asiatica Leaf Extract, Sodium Lauroyl Lactylate, Carbomer, Phenoxyethanol.",
 			"ritual": "Warm a hazelnut-sized portion between fingertips and press into face, neck, and collarbones following serum application. Ideal for both AM and PM rituals.",
 			"nafdac": "NAFDAC Reg. No. 04-9405. Formulated without pore-clogging waxes or synthetic dyes."
 		}
 	},
 	{
-		"id": "marula-barrier-repair-oil",
-		"slug": "marula-barrier-repair-oil",
-		"name": "Marula Barrier Repair Oil",
-		"tagline": "Virgin Cold-Pressed Liquid Gold Botanical Concentrate",
+		"id": "parisian-botanical-barrier-oil",
+		"slug": "parisian-botanical-barrier-oil",
+		"name": "Parisian Botanical Barrier Oil",
+		"tagline": "Virgin Cold-Pressed Botanical Concentrate Imported from France",
 		"price": 32000,
 		"category": "Treatments",
 		"stockStatus": "In Stock",
@@ -166,20 +166,20 @@
 			"https://images.unsplash.com/photo-1608248597359-5989e248b652?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "100% pure unrefined cold-pressed Southern African Marula oil, rich in polyphenols, flavonoids, and natural squalene to repair damaged lipid barriers and restore incandescent luminosity.",
+		"description": "100% pure cold-pressed French botanical squalane and rosehip seed oil, rich in polyphenols, flavonoids, and natural lipids to repair damaged barriers and restore incandescent luminosity.",
 		"formulation": {
 			"phLevel": "Anhydrous (Lipid Formulation)",
 			"texture": "Ultra-cushioning fast-absorbing dry oil",
 			"skinType": "Stressed, sensitised, and barrier-compromised skin",
 			"keyActives": [
-				"100% Pure Virgin Sclerocarya Birrea (Marula) Kernel Oil",
-				"Naturally Occurring Tocopherols",
-				"Plant Squalene"
+				"French Olive-Derived Squalane",
+				"Organic Rosa Rubiginosa (Rosehip) Seed Oil",
+				"Naturally Occurring Tocopherols"
 			]
 		},
 		"accordions": {
-			"bioActives": "High levels of oleic acid (70-78%) and potent antioxidants combat cellular oxidation, calm skin reactivity, and lock in trans-epidermal moisture.",
-			"inci": "100% Sclerocarya Birrea (Marula) Seed Oil (Virgin, Unrefined, Cold-Pressed). Zero additives, preservatives, or artificial fragrances.",
+			"bioActives": "High levels of essential fatty acids and potent antioxidants combat cellular oxidation, calm skin reactivity, and lock in trans-epidermal moisture.",
+			"inci": "Rosa Rubiginosa (Rosehip) Seed Oil, Squalane, Tocopherol (Vitamin E). Zero additives, preservatives, or artificial fragrances.",
 			"ritual": "Press 2–3 drops onto clean skin as the final sealing step in your evening ritual, or mix 1 drop into your foundation or moisturiser for a bespoke dewy finish.",
 			"nafdac": "NAFDAC Reg. No. 04-8119. Certified 100% pure organic botanical origin."
 		}
@@ -202,23 +202,23 @@
 			"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80",
 			"https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&w=1000&q=80"
 		],
-		"description": "A botanical exfoliating toner marrying hibiscus flower acids with lactic acid and aloe vera leaf juice to gently dissolve dead cellular debris without causing post-inflammatory hyperpigmentation.",
+		"description": "A Parisian exfoliating botanical tonic marrying hibiscus flower acids with gentle lactic acid and soothing botanical waters to dissolve cellular debris without irritation.",
 		"formulation": {
 			"phLevel": "3.8 - 4.1",
 			"texture": "Refreshing botanical liquid nectar",
-			"skinType": "Melanin-rich skin prone to texture, uneven tone, and congestion",
+			"skinType": "Skin prone to texture, uneven tone, and congestion",
 			"keyActives": [
-				"Hibiscus Sabdariffa Flower Acid Extract",
+				"Hibiscus Flower Acid Extract",
 				"5% Lactic Acid",
 				"Aloe Barbadensis Leaf Juice",
 				"Licorice Root Extract"
 			]
 		},
 		"accordions": {
-			"bioActives": "Hibiscus Sabdariffa organic flower acids stimulate rapid cell turnover while natural anthocyanocides soothe cutaneous irritation. Licorice Root Extract inhibits melanin synthesis enzymes.",
+			"bioActives": "Organic hibiscus flower acids stimulate rapid cell turnover while natural flower extracts soothe cutaneous irritation. Licorice Root Extract balances uneven tone.",
 			"inci": "Aqua, Aloe Barbadensis Leaf Juice, Lactic Acid, Hibiscus Sabdariffa Flower Extract, Glycyrrhiza Glabra (Licorice) Root Extract, Sodium Hydroxide, Glycerin, Propanediol, Allantoin, Phenoxyethanol, Ethylhexylglycerin.",
-			"ritual": "Saturate a reusable cotton pad and sweep across cleansed face and neck, avoiding the eye contour. Use 2–3 evenings per week. Always follow with Kalahari Melon SPF 50 during the day.",
-			"nafdac": "NAFDAC Reg. No. 04-7801. Formulated to safely resurface without photosensitizing melanin-rich skin."
+			"ritual": "Saturate a reusable cotton pad and sweep across cleansed face and neck, avoiding the eye contour. Use 2–3 evenings per week. Always follow with SPF 50 during the day.",
+			"nafdac": "NAFDAC Reg. No. 04-7801. Formulated to safely resurface without photosensitizing delicate skin."
 		}
 	}
 ]

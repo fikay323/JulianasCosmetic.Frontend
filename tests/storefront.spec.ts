@@ -559,7 +559,7 @@ test.describe("Tier 4: Real-World Luxury Shopping Workflow", () => {
 		await expect(page).toHaveTitle(/Juliana/i);
 
 		// Assert NAFDAC trust pillars
-		const nafdacSection = page.locator("text=/NAFDAC Certified|Melanin-Rich|African Native Botanicals|100% Clean/i").first();
+		const nafdacSection = page.locator("text=/NAFDAC Certified|Melanin-Rich|Imported French Formulations|100% Clean/i").first();
 		await expect(nafdacSection).toBeVisible();
 
 		// 2. Navigate to PLP / Product

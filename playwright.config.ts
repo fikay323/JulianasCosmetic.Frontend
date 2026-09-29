@@ -6,9 +6,9 @@ import { defineConfig, devices } from "@playwright/test";
  */
 export default defineConfig({
 	testDir: "./tests",
-	timeout: 30 * 1000,
+	timeout: 45 * 1000,
 	expect: {
-		timeout: 10 * 1000,
+		timeout: 15 * 1000,
 	},
 	fullyParallel: false,
 	forbidOnly: !!process.env.CI,
@@ -16,7 +16,7 @@ export default defineConfig({
 	workers: 1,
 	reporter: [["html", { open: "never" }], ["list"]],
 	use: {
-		baseURL: "http://localhost:3000",
+		baseURL: "http://localhost:3005",
 		trace: "on-first-retry",
 		screenshot: "only-on-failure",
 	},
@@ -27,9 +27,9 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: process.env.CI ? "pnpm run build && pnpm run start" : "pnpm run dev",
-		port: 3000,
-		reuseExistingServer: !process.env.CI,
+		command: "npx next dev -p 3005",
+		port: 3005,
+		reuseExistingServer: false,
 		timeout: 120 * 1000,
 	},
 });

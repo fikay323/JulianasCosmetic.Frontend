@@ -10,7 +10,7 @@ test.describe("Milestone M3: Storefront, Catalog & Cart Experience", () => {
 		await expect(page).toHaveTitle(/Juliana/i);
 		const heroHeading = page.locator("h1").first();
 		await expect(heroHeading).toBeVisible();
-		await expect(heroHeading).toContainText("Awaken Radiant Skin with Pure African Botanicals");
+		await expect(heroHeading).toContainText("Awaken Radiant Skin with Imported Parisian Formulations");
 
 		// 2. Verify CTA buttons
 		const shopBestsellersBtn = page.locator('a[href*="/products"]:has-text("Shop Bestsellers")').first();
@@ -25,7 +25,7 @@ test.describe("Milestone M3: Storefront, Catalog & Cart Experience", () => {
 		await expect(trustSection).toBeVisible();
 		await expect(page.locator("text=/NAFDAC Certified Clean/i").first()).toBeVisible();
 		await expect(page.locator("text=/Melanin-Rich Formulations/i").first()).toBeVisible();
-		await expect(page.locator("text=/African Native Botanicals/i").first()).toBeVisible();
+		await expect(page.locator("text=/Imported French Formulations/i").first()).toBeVisible();
 		await expect(page.locator("text=/100% Clean Bio-Actives/i").first()).toBeVisible();
 
 		// 4. Verify Featured Botanical Grid

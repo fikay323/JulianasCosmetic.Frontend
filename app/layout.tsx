@@ -23,22 +23,22 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://julianas-cosmetic-f
 export const metadata: Metadata = {
 	metadataBase: new URL(siteUrl),
 	title: {
-		default: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		default: "Juliana's Cosmetics | Luxury Clean Skincare Imported from Paris",
 		template: "%s | Juliana's Cosmetics",
 	},
 	description:
-		"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+		"Luxury clean skincare imported directly from Paris, formulated with premium French botanical extracts and dermatologically proven bio-actives. Delivered nationwide across Nigeria.",
 	applicationName: "Juliana's Cosmetics",
 	authors: [{ name: "Juliana's Cosmetics" }],
 	generator: "Next.js",
 	keywords: [
 		"Juliana's Cosmetics",
-		"African Botanicals",
-		"Melanin Skincare",
+		"Parisian Skincare",
+		"French Cosmetics Nigeria",
 		"Clean Beauty Nigeria",
 		"Luxury Skincare Lagos",
-		"Cold-Pressed Botanical Oils",
-		"NAFDAC Approved Skincare",
+		"Imported French Skincare",
+		"NAFDAC Approved Cosmetics",
 	],
 	icons: {
 		icon: [
@@ -54,24 +54,24 @@ export const metadata: Metadata = {
 		locale: "en_US",
 		url: siteUrl,
 		siteName: "Juliana's Cosmetics",
-		title: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		title: "Juliana's Cosmetics | Luxury Clean Skincare Imported from Paris",
 		description:
-			"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+			"Luxury clean skincare imported directly from Paris, formulated with premium French botanical extracts and dermatologically proven bio-actives. Delivered nationwide across Nigeria.",
 		images: [
 			{
 				url: "/og-image.jpg",
 				width: 1200,
 				height: 630,
-				alt: "Juliana's Cosmetics - Luxury Clean Botanical Skincare",
+				alt: "Juliana's Cosmetics - Luxury Clean Skincare Imported from Paris",
 				type: "image/jpeg",
 			},
 		],
 	},
 	twitter: {
 		card: "summary_large_image",
-		title: "Juliana's Cosmetics | Luxury Clean Skincare & African Botanicals",
+		title: "Juliana's Cosmetics | Luxury Clean Skincare Imported from Paris",
 		description:
-			"Luxury clean botanical skincare formulated with cold-pressed African oils and dermatologically proven bio-actives for melanin-rich skin. NAFDAC approved.",
+			"Luxury clean skincare imported directly from Paris, formulated with premium French botanical extracts and dermatologically proven bio-actives. Delivered nationwide across Nigeria.",
 		images: ["/og-image.jpg"],
 	},
 };

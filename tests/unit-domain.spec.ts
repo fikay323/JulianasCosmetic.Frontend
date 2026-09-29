@@ -118,10 +118,10 @@ test.describe("M2 Domain Foundation & Storage Unit Tests", () => {
 
 		const requiredNames = [
 			"Luminous Peptide Glaze Serum",
-			"Kalahari Melon Sun Shield SPF 50",
-			"Baobab Gentle Purifying Cleanser",
+			"Parisian Mineral Sun Shield SPF 50",
+			"Botanical Purifying Jelly Cleanser",
 			"Botanical Hydration Crème",
-			"Marula Barrier Repair Oil",
+			"Parisian Botanical Barrier Oil",
 			"Hibiscus AHA Glow Tonic",
 		];
 

@@ -30,10 +30,10 @@ export function Footer(): React.JSX.Element {
 						</div>
 						<div>
 							<h4 className="font-serif text-lg font-medium text-white">
-								Indigenous African Botanicals
+								Imported Parisian Formulations
 							</h4>
 							<p className="mt-1 text-xs leading-relaxed text-on-primary-container">
-								Ethically harvested virgin Kalahari melon, Nigerian baobab, wild marula, and Nilotica shea butter.
+								Directly imported from French cosmetic laboratories, featuring clinical-grade European botanicals and active complexes.
 							</p>
 						</div>
 					</div>
@@ -63,7 +63,7 @@ export function Footer(): React.JSX.Element {
 							Juliana&apos;s Cosmetics
 						</h3>
 						<p className="text-xs leading-relaxed text-on-primary-container">
-							L&apos;Élixir Editorial &amp; Aura Botanicals Apothecary. Luxury clean skincare marrying African plant wisdom with clinically proven cellular bio-actives.
+							L&apos;Élixir Editorial &amp; Luxury Apothecary. High-performance clean skincare marrying Parisian cosmetic refinement with clinically proven cellular bio-actives.
 						</p>
 						{/* <div className="pt-2">
 							<span className="inline-flex items-center gap-2 rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-[11px] font-medium tracking-wider text-secondary">

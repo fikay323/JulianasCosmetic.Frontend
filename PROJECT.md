@@ -60,7 +60,7 @@
 | 8 | Persistent Data Foundation | Create `src/data/products.json`, `src/data/orders.json`, and `src/lib/storage.ts` | M2 | ORIGINAL_REQUEST §R5 |
 | 9 | Cart State Context | Create `src/context/CartContext.tsx` with drawer toggle, badge counter, and subtotal | M2 | ORIGINAL_REQUEST §R3 |
 | 10 | Homepage Hero Split | 60/40 editorial hero split with gold accents and CTA | M3 | ORIGINAL_REQUEST §R3 |
-| 11 | NAFDAC Trust Pillars | 4 trust pillar cards (Certified, Melanin-Rich, African Botanicals, 100% Clean) | M3 | ORIGINAL_REQUEST §R3 |
+| 11 | NAFDAC Trust Pillars | 4 trust pillar cards (Certified, Melanin-Rich, Imported French Formulations, 100% Clean) | M3 | ORIGINAL_REQUEST §R3 |
 | 12 | Botanical Product Grid | Featured bestsellers grid with quick add to cart | M3 | ORIGINAL_REQUEST §R3 |
 | 13 | PLP Category Filter & Sort | Filter by category (Serums, Moisturisers, Suncare, etc.) and sort by price/newest | M3 | ORIGINAL_REQUEST §R3 |
 | 14 | PDP High-Res Visual Zoom | Interactive visual zoom on product images | M3 | ORIGINAL_REQUEST §R3 |
