@@ -272,6 +272,29 @@ const server = http.createServer(async (req, res) => {
 		);
 	}
 
+	// 0. /api/admin/auth
+	if (pathname === "/api/admin/auth" && req.method === "POST") {
+		const body = await parseBody(req);
+		const passkey = (body.passkey || "").trim();
+		const expectedPasskey = process.env.ADMIN_PASSWORD || "julianas2026";
+		if (!passkey || passkey !== expectedPasskey) {
+			res.writeHead(401, { "Content-Type": "application/json" });
+			return res.end(
+				JSON.stringify({
+					success: false,
+					error: "Incorrect administrative passkey",
+				})
+			);
+		}
+		res.writeHead(200, { "Content-Type": "application/json" });
+		return res.end(
+			JSON.stringify({
+				success: true,
+				message: "Administrative access granted",
+			})
+		);
+	}
+
 	// 1. /api/products
 	if (pathname === "/api/products") {
 		if (req.method === "GET") {

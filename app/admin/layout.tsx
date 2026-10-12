@@ -15,6 +15,7 @@ import {
 	ExternalLink,
 	AlertCircle,
 } from "lucide-react";
+import { useToast } from "@/src/context/ToastContext";
 
 export default function AdminLayout({
 	children,
@@ -22,6 +23,7 @@ export default function AdminLayout({
 	children: React.ReactNode;
 }): React.JSX.Element {
 	const pathname = usePathname();
+	const { toast } = useToast();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 	const [isChecking, setIsChecking] = useState<boolean>(true);
 	const [passkey, setPasskey] = useState<string>("");
@@ -76,7 +78,11 @@ export default function AdminLayout({
 			const data = (await res.json()) as { success?: boolean; error?: string };
 
 			if (!res.ok || !data.success) {
-				setAuthError(data.error || "Incorrect administrative passkey");
+				const errMsg = data.error || "Incorrect administrative passkey";
+				setAuthError(errMsg);
+				if (res.status >= 500) {
+					toast.error(errMsg, "Backend Auth Unavailable");
+				}
 				return;
 			}
 
@@ -86,7 +92,9 @@ export default function AdminLayout({
 			}
 			setPasskey("");
 		} catch {
-			setAuthError("Failed to verify credentials. Please try again.");
+			const errMsg = "Failed to verify credentials with backend. Please try again.";
+			setAuthError(errMsg);
+			toast.error(errMsg, "Backend Connection Error");
 		} finally {
 			setIsSubmitting(false);
 		}

@@ -949,7 +949,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 									Description
 								</label>
 								<textarea
-									rows={2}
+									rows={5}
 									value={newProductForm.description}
 									onChange={(e) =>
 										setNewProductForm({
@@ -957,7 +957,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 											description: e.target.value,
 										})
 									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2 text-xs text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 min-h-[120px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 
@@ -1017,7 +1017,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 			{/* Modal: Edit Formulation Details */}
 			{isEditModalOpen && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 overflow-y-auto">
-					<div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
+					<div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
 						<div className="flex items-center justify-between border-b border-border-delicate pb-4">
 							<div className="flex items-center gap-2">
 								<Edit3 className="h-5 w-5 text-secondary-dark" />
@@ -1039,7 +1039,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							</button>
 						</div>
 
-						<form onSubmit={handleSaveEdit} className="mt-6 space-y-4 text-xs">
+						<form onSubmit={handleSaveEdit} className="mt-6 space-y-5 text-xs">
 							<div>
 								<label className="block font-semibold uppercase tracking-wider text-primary">
 									Product Name *
@@ -1131,7 +1131,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 									Description *
 								</label>
 								<textarea
-									rows={4}
+									rows={6}
 									required
 									value={editProductForm.description}
 									onChange={(e) =>
@@ -1140,7 +1140,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 											description: e.target.value,
 										})
 									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 min-h-[150px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 
@@ -1199,7 +1199,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 									Application Ritual (Accordion)
 								</label>
 								<textarea
-									rows={2}
+									rows={4}
 									value={editProductForm.ritual}
 									onChange={(e) =>
 										setEditProductForm({
@@ -1207,7 +1207,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 											ritual: e.target.value,
 										})
 									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2 text-xs text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 min-h-[115px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 
@@ -1216,7 +1216,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 									INCI Full Ingredients List (Accordion)
 								</label>
 								<textarea
-									rows={2}
+									rows={4}
 									value={editProductForm.inci}
 									onChange={(e) =>
 										setEditProductForm({
@@ -1224,7 +1224,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 											inci: e.target.value,
 										})
 									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2 text-xs text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 min-h-[115px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 
