@@ -15,14 +15,22 @@ import { useToast } from "@/src/context/ToastContext";
 export interface ProductImageUploaderProps {
 	currentImageUrl: string;
 	currentPublicId?: string;
+	initialSavedImageUrl?: string;
 	onImageUploaded: (url: string, publicId: string) => void;
 	onImageRemoved: () => void;
 	onPendingPreviewChange?: (hasPendingPreview: boolean) => void;
 }
 
+interface UploadResponsePayload {
+	url?: string;
+	publicId?: string;
+	error?: string;
+}
+
 export function ProductImageUploader({
 	currentImageUrl,
 	currentPublicId,
+	initialSavedImageUrl,
 	onImageUploaded,
 	onImageRemoved,
 	onPendingPreviewChange,
@@ -33,6 +41,7 @@ export function ProductImageUploader({
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
 	const [isUploading, setIsUploading] = useState<boolean>(false);
+	const [uploadProgress, setUploadProgress] = useState<number>(0);
 	const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
 	useEffect(() => {
@@ -68,6 +77,7 @@ export function ProductImageUploader({
 		const objectUrl = URL.createObjectURL(file);
 		setSelectedFile(file);
 		setLocalPreviewUrl(objectUrl);
+		setUploadProgress(0);
 	};
 
 	const handleDiscardPreview = (): void => {
@@ -76,36 +86,74 @@ export function ProductImageUploader({
 		}
 		setSelectedFile(null);
 		setLocalPreviewUrl(null);
+		setUploadProgress(0);
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
 		}
+	};
+
+	const uploadWithProgress = (file: File): Promise<UploadResponsePayload> => {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+			const formData = new FormData();
+			formData.append("file", file);
+
+			xhr.upload.addEventListener("progress", (event: ProgressEvent) => {
+				if (event.lengthComputable && event.total > 0) {
+					const percent = Math.min(95, Math.round((event.loaded / event.total) * 100));
+					setUploadProgress(percent);
+				}
+			});
+
+			xhr.addEventListener("load", () => {
+				let parsed: UploadResponsePayload = {};
+				try {
+					parsed = JSON.parse(xhr.responseText) as UploadResponsePayload;
+				} catch {
+					parsed = {};
+				}
+
+				if (xhr.status >= 200 && xhr.status < 300 && parsed.url) {
+					setUploadProgress(100);
+					resolve(parsed);
+				} else {
+					reject(
+						new Error(
+							parsed.error || `Image upload failed with status ${xhr.status}`
+						)
+					);
+				}
+			});
+
+			xhr.addEventListener("error", () => {
+				reject(new Error("Network error while uploading image to backend"));
+			});
+
+			xhr.open("POST", "/api/images");
+			xhr.send(formData);
+		});
 	};
 
 	const handleConfirmUpload = async (): Promise<void> => {
 		if (!selectedFile) return;
 
 		setIsUploading(true);
+		setUploadProgress(10);
 		try {
-			const formData = new FormData();
-			formData.append("file", selectedFile);
+			const data = await uploadWithProgress(selectedFile);
 
-			const res = await fetch("/api/images", {
-				method: "POST",
-				body: formData,
-			});
-
-			const data = (await res.json().catch(() => ({}))) as {
-				url?: string;
-				publicId?: string;
-				error?: string;
-			};
-
-			if (!res.ok || !data.url) {
+			if (!data.url) {
 				throw new Error(data.error || "Failed to upload image to Cloudinary");
 			}
 
-			// If replacing an already-uploaded temporary image, clean up the old one
-			if (currentPublicId || (currentImageUrl && currentImageUrl.includes("cloudinary"))) {
+			// If replacing a session-uploaded image (not the original saved product image, which is deleted on product save), delete it immediately
+			const isSessionUploadedImage =
+				Boolean(currentPublicId) ||
+				(Boolean(currentImageUrl) &&
+					currentImageUrl !== initialSavedImageUrl &&
+					currentImageUrl.includes("cloudinary"));
+
+			if (isSessionUploadedImage) {
 				await fetch("/api/images", {
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
@@ -122,6 +170,7 @@ export function ProductImageUploader({
 		} catch (err: unknown) {
 			const msg = err instanceof Error ? err.message : "Failed to upload product image";
 			toast.error(msg, "Image Upload Error");
+			setUploadProgress(0);
 		} finally {
 			setIsUploading(false);
 		}
@@ -132,29 +181,37 @@ export function ProductImageUploader({
 
 		setIsDeleting(true);
 		try {
-			const res = await fetch("/api/images", {
-				method: "DELETE",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					publicId: currentPublicId,
-					imageUrl: currentImageUrl,
-				}),
-			});
+			// If this image was uploaded in the current session (or is not yet saved to the product), delete it from Cloudinary immediately
+			const shouldDeleteImmediately =
+				Boolean(currentPublicId) ||
+				!initialSavedImageUrl ||
+				currentImageUrl !== initialSavedImageUrl;
 
-			const data = (await res.json().catch(() => ({}))) as {
-				success?: boolean;
-				error?: string;
-			};
+			if (shouldDeleteImmediately) {
+				const res = await fetch("/api/images", {
+					method: "DELETE",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						publicId: currentPublicId,
+						imageUrl: currentImageUrl,
+					}),
+				});
 
-			if (!res.ok) {
-				throw new Error(data.error || "Failed to delete uploaded image from storage");
+				const data = (await res.json().catch(() => ({}))) as {
+					success?: boolean;
+					error?: string;
+				};
+
+				if (!res.ok) {
+					throw new Error(data.error || "Failed to delete uploaded image from storage");
+				}
 			}
 
 			onImageRemoved();
 			if (fileInputRef.current) {
 				fileInputRef.current.value = "";
 			}
-			toast.info("Previous image deleted. You can now select a new image.", "Image Removed");
+			toast.info("Image removed. Select and confirm a new image to upload.", "Image Removed");
 		} catch (err: unknown) {
 			const msg = err instanceof Error ? err.message : "Failed to remove image";
 			toast.error(msg, "Image Deletion Error");
@@ -172,7 +229,7 @@ export function ProductImageUploader({
 	return (
 		<div className="space-y-2.5" data-testid="product-image-uploader">
 			<label className="block font-semibold uppercase tracking-wider text-primary">
-				Product Image (Upload & Preview) *
+				Product Image (Upload &amp; Preview) *
 			</label>
 
 			<input
@@ -213,6 +270,29 @@ export function ProductImageUploader({
 								Review the image preview above. Click <strong>Confirm &amp; Upload</strong> to store it in Cloudinary, or discard to pick a different file.
 							</p>
 
+							{/* Upload Progress Bar */}
+							{isUploading && (
+								<div className="space-y-1.5 pt-1" data-testid="upload-progress-container">
+									<div className="flex items-center justify-between text-[11px] font-semibold text-primary">
+										<span>Uploading to Cloudinary...</span>
+										<span data-testid="upload-progress-percent">{uploadProgress}%</span>
+									</div>
+									<div
+										role="progressbar"
+										aria-valuenow={uploadProgress}
+										aria-valuemin={0}
+										aria-valuemax={100}
+										data-testid="upload-progress-bar"
+										className="h-2 w-full overflow-hidden rounded-full bg-surface-container"
+									>
+										<div
+											className="h-full rounded-full bg-secondary transition-all duration-200 ease-out"
+											style={{ width: `${uploadProgress}%` }}
+										/>
+									</div>
+								</div>
+							)}
+
 							<div className="flex flex-wrap items-center gap-2.5 pt-1">
 								<button
 									type="button"
@@ -226,7 +306,11 @@ export function ProductImageUploader({
 									) : (
 										<Upload className="h-3.5 w-3.5" />
 									)}
-									<span>{isUploading ? "Uploading..." : "Confirm & Upload"}</span>
+									<span>
+										{isUploading
+											? `Uploading (${uploadProgress}%)...`
+											: "Confirm & Upload"}
+									</span>
 								</button>
 
 								<button
@@ -244,7 +328,7 @@ export function ProductImageUploader({
 					</div>
 				</div>
 			) : currentImageUrl ? (
-				/* STATE 2: Uploaded / Active Product Image with Remove & Delete option */
+				/* STATE 2: Uploaded / Active Product Image with Change or Remove & Delete options */
 				<div
 					data-testid="uploaded-image-card"
 					className="rounded-2xl border border-border-delicate bg-surface p-4"
@@ -266,10 +350,21 @@ export function ProductImageUploader({
 								<span>Uploaded &amp; Active</span>
 							</div>
 							<p className="text-[11px] text-on-surface-variant leading-relaxed">
-								This image is currently active. Removing it will permanently delete the uploaded asset so no orphaned images remain, allowing you to upload a new one.
+								This image is currently active. Removing or replacing it will permanently delete the previous asset from Cloudinary so no orphaned images remain.
 							</p>
 
 							<div className="flex flex-wrap items-center gap-2.5 pt-1">
+								<button
+									type="button"
+									onClick={() => fileInputRef.current?.click()}
+									disabled={isDeleting}
+									data-testid="change-uploaded-image-btn"
+									className="inline-flex items-center gap-1.5 rounded-full border border-border-delicate bg-surface-card px-4 py-2 text-xs font-semibold text-primary hover:bg-surface-container-low transition-colors disabled:opacity-50"
+								>
+									<Upload className="h-3.5 w-3.5" />
+									<span>Change Image</span>
+								</button>
+
 								<button
 									type="button"
 									onClick={() => void handleRemoveUploadedImage()}

@@ -1245,6 +1245,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							<ProductImageUploader
 								currentImageUrl={editProductForm.imageUrl}
 								currentPublicId={editProductForm.imagePublicId}
+								initialSavedImageUrl={editProductForm.originalImageUrl}
 								onImageUploaded={(url, publicId) =>
 									setEditProductForm((prev) => ({
 										...prev,
