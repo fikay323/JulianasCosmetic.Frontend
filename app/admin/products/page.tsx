@@ -305,7 +305,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 					publicId: newProductForm.imagePublicId,
 					imageUrl: newProductForm.imageUrl,
 				}),
-			}).catch(() => {});
+			}).catch(() => { });
 		}
 		setHasAddPendingPreview(false);
 		setNewProductForm({
@@ -455,7 +455,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 					publicId: editProductForm.imagePublicId,
 					imageUrl: editProductForm.imageUrl,
 				}),
-			}).catch(() => {});
+			}).catch(() => { });
 		}
 		setHasEditPendingPreview(false);
 		setIsEditModalOpen(false);
@@ -764,25 +764,23 @@ export default function AdminProductsPage(): React.JSX.Element {
 														type="button"
 														onClick={() => void handleToggleFeatured(product)}
 														disabled={togglingFeaturedId === product.id}
-														className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 ${
-															product.featured
+														className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 ${product.featured
 																? "bg-secondary-fixed text-on-secondary-fixed border border-secondary"
 																: "bg-surface-container-low text-on-surface-variant border border-border-delicate hover:text-primary"
-														}`}
+															}`}
 													>
 														<Star
-															className={`h-3.5 w-3.5 ${
-																product.featured
+															className={`h-3.5 w-3.5 ${product.featured
 																	? "fill-secondary-dark text-secondary-dark"
 																	: "text-on-surface-variant"
-															}`}
+																}`}
 														/>
 														<span>
 															{togglingFeaturedId === product.id
 																? "Saving..."
 																: product.featured
-																? "Featured"
-																: "Not Featured"}
+																	? "Featured"
+																	: "Not Featured"}
 														</span>
 													</button>
 												</td>
@@ -857,18 +855,17 @@ export default function AdminProductsPage(): React.JSX.Element {
 															aria-checked={isStockActive}
 															onClick={() => void handleToggleStock(product)}
 															disabled={togglingStockId === product.id}
-															className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-all active:scale-95 disabled:opacity-50 ${
-																isStockActive
+															className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-all active:scale-95 disabled:opacity-50 ${isStockActive
 																	? "border-border-delicate bg-surface-container-low text-primary hover:border-error hover:text-error"
 																	: "border-primary bg-primary text-white hover:bg-primary/90"
-															}`}
+																}`}
 														>
 															<span>
 																{togglingStockId === product.id
 																	? "..."
 																	: isStockActive
-																	? "Mark Out of Stock"
-																	: "Mark In Stock"}
+																		? "Mark Out of Stock"
+																		: "Mark In Stock"}
 															</span>
 														</button>
 
@@ -1055,7 +1052,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 											description: e.target.value,
 										})
 									}
-									className="mt-1.5 min-h-[120px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 min-h-[120px] w-full resize-y rounded-DEFAULT border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 
