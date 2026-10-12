@@ -31,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps): React.JSX.Element {
 			className="product-card group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border-delicate bg-surface-card p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover"
 		>
 			{/* Top Image & Badges */}
-			<div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-container-low">
+			<div className="relative aspect-[4/5] w-full overflow-hidden rounded-DEFAULT bg-surface-container-low">
 				<Link href={`/products/${product.id}`} className="relative block h-full w-full">
 					<Image
 						src={imageSrc}
