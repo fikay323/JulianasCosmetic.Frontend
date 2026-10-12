@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { CartProvider } from "@/src/context/CartContext";
+import { ToastProvider } from "@/src/context/ToastContext";
 import { Header } from "@/src/components/layout/Header";
 import { Footer } from "@/src/components/layout/Footer";
 import { CartDrawer } from "@/src/components/cart/CartDrawer";
@@ -93,12 +94,14 @@ export default function RootLayout({
 			className={`${playfair.variable} ${jakarta.variable} h-full antialiased`}
 		>
 			<body className="flex min-h-full flex-col bg-surface font-body text-primary antialiased">
-				<CartProvider>
-					<Header />
-					<main className="flex-1">{children}</main>
-					<Footer />
-					<CartDrawer />
-				</CartProvider>
+				<ToastProvider>
+					<CartProvider>
+						<Header />
+						<main className="flex-1">{children}</main>
+						<Footer />
+						<CartDrawer />
+					</CartProvider>
+				</ToastProvider>
 			</body>
 		</html>
 	);

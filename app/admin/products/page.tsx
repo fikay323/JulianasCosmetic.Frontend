@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
 	Package,
-	ArrowLeft,
 	RefreshCw,
 	Check,
 	AlertCircle,
@@ -19,6 +18,7 @@ import {
 	Edit3,
 } from "lucide-react";
 import { formatNaira } from "@/src/lib/utils";
+import { useToast } from "@/src/context/ToastContext";
 import type { Product, ProductCategory, CreateProductDto, UpdateProductDto } from "@/src/types/store";
 
 const CATEGORIES: ProductCategory[] = [
@@ -30,6 +30,7 @@ const CATEGORIES: ProductCategory[] = [
 ];
 
 export default function AdminProductsPage(): React.JSX.Element {
+	const { toast } = useToast();
 	const [products, setProducts] = useState<Product[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -120,15 +121,18 @@ export default function AdminProductsPage(): React.JSX.Element {
 			});
 			setPriceInputs(initialPrices);
 		} catch (err: unknown) {
-			const msg = err instanceof Error ? err.message : "Error fetching products";
+			const msg = err instanceof Error ? err.message : "Error fetching products from backend";
 			setError(msg);
+			toast.error(msg, "Backend Catalog Error");
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [toast]);
 
 	useEffect(() => {
-		void loadProducts();
+		queueMicrotask(() => {
+			void loadProducts();
+		});
 	}, [loadProducts]);
 
 	const handleRefresh = (): void => {
@@ -457,7 +461,6 @@ export default function AdminProductsPage(): React.JSX.Element {
 	const inStockCount = products.filter(
 		(p) => p.stockStatus === "In Stock" && p.inStock !== false
 	).length;
-	const outOfStockCount = products.length - inStockCount;
 	const featuredCount = products.filter((p) => p.featured).length;
 	const avgPrice =
 		products.length > 0

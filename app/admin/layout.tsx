@@ -6,7 +6,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
 	Lock,
-	ShieldCheck,
 	KeyRound,
 	ArrowRight,
 	LogOut,
@@ -30,28 +29,31 @@ export default function AdminLayout({
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
 	useEffect(() => {
-		// Check both cookie via API and local token cache
-		const localToken = typeof window !== "undefined" ? localStorage.getItem("jc_admin_auth") : null;
-		if (localToken === "authenticated") {
-			setIsAuthenticated(true);
-			setIsChecking(false);
-			return;
-		}
+		const checkAuth = async (): Promise<void> => {
+			try {
+				const localToken =
+					typeof window !== "undefined" ? localStorage.getItem("jc_admin_auth") : null;
+				if (localToken === "authenticated") {
+					setIsAuthenticated(true);
+					return;
+				}
 
-		fetch("/api/admin/auth")
-			.then((res) => res.json())
-			.then((data: { authenticated?: boolean }) => {
+				const res = await fetch("/api/admin/auth");
+				const data = (await res.json()) as { authenticated?: boolean };
 				if (data.authenticated) {
 					setIsAuthenticated(true);
 					if (typeof window !== "undefined") {
 						localStorage.setItem("jc_admin_auth", "authenticated");
 					}
 				}
-			})
-			.catch(() => {})
-			.finally(() => {
+			} catch {
+				// Ignore network error during initial auth check
+			} finally {
 				setIsChecking(false);
-			});
+			}
+		};
+
+		void checkAuth();
 	}, []);
 
 	const handleLogin = async (e: React.FormEvent): Promise<void> => {

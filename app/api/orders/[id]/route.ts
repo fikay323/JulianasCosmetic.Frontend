@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readJsonFile, writeJsonFile } from "@/src/lib/storage";
-import type { Order, OrderStatus } from "@/src/types/store";
+import { getBackendApiUrl } from "@/src/lib/backend";
+import type { OrderStatus } from "@/src/types/store";
 
 export const dynamic = "force-dynamic";
-
-const ORDERS_FILE_PATH = "src/data/orders.json";
 
 interface UpdateOrderPayload {
 	agreedDeliveryFee?: number | null;
@@ -16,32 +14,37 @@ export async function GET(
 	_request: NextRequest,
 	context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-	try {
-		const { id } = await context.params;
-		const decodedId = decodeURIComponent(id).replace(/^#/, "");
-		const orders = await readJsonFile<Order[]>(ORDERS_FILE_PATH, []);
-		const order = orders.find(
-			(o) =>
-				o.id === id ||
-				o.id === decodedId ||
-				o.orderNumber === id ||
-				o.orderNumber === decodedId ||
-				o.orderNumber.replace(/^#/, "") === decodedId
-		);
+	const { id } = await context.params;
+	const baseUrl = getBackendApiUrl();
+	const endpoint = `${baseUrl}/api/orders/${encodeURIComponent(id)}`;
 
-		if (!order) {
+	try {
+		const res = await fetch(endpoint, {
+			cache: "no-store",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+
+		const data: unknown = await res.json().catch(() => ({}));
+
+		if (!res.ok) {
 			return NextResponse.json(
-				{ error: `Order with identifier '${id}' not found` },
-				{ status: 404 }
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
 			);
 		}
 
-		return NextResponse.json(order, { status: 200 });
+		return NextResponse.json(data, { status: 200 });
 	} catch (error: unknown) {
-		console.error("[GET /api/orders/[id]] Error:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[GET /api/orders/[id]] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to retrieve order" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Failed to retrieve order.`,
+			},
+			{ status: 502 }
 		);
 	}
 }
@@ -50,10 +53,11 @@ export async function PATCH(
 	request: NextRequest,
 	context: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-	try {
-		const { id } = await context.params;
-		const decodedId = decodeURIComponent(id).replace(/^#/, "");
+	const { id } = await context.params;
+	const baseUrl = getBackendApiUrl();
+	const endpoint = `${baseUrl}/api/orders/${encodeURIComponent(id)}`;
 
+	try {
 		let body: UpdateOrderPayload = {};
 		try {
 			const text = await request.text();
@@ -61,56 +65,38 @@ export async function PATCH(
 				body = JSON.parse(text) as UpdateOrderPayload;
 			}
 		} catch (parseErr: unknown) {
-			console.warn("[PATCH /api/orders/[id]] Could not parse JSON body:", parseErr);
+			console.warn("[PATCH /api/orders/[id]] JSON parse warning:", parseErr);
 			body = {};
 		}
 
-		const orders = await readJsonFile<Order[]>(ORDERS_FILE_PATH, []);
+		const res = await fetch(endpoint, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify(body),
+		});
 
-		const orderIndex = orders.findIndex(
-			(o) =>
-				o.id === id ||
-				o.id === decodedId ||
-				o.orderNumber === id ||
-				o.orderNumber === decodedId ||
-				o.orderNumber.replace(/^#/, "") === decodedId
-		);
+		const data: unknown = await res.json().catch(() => ({}));
 
-		if (orderIndex === -1) {
+		if (!res.ok) {
 			return NextResponse.json(
-				{ error: `Order with identifier '${id}' not found` },
-				{ status: 404 }
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
 			);
 		}
 
-		const existing = orders[orderIndex];
-		const updatedOrder: Order = { ...existing };
-
-		if (body.agreedDeliveryFee !== undefined) {
-			const feeNumber = body.agreedDeliveryFee === null ? null : Number(body.agreedDeliveryFee);
-			updatedOrder.agreedDeliveryFee = feeNumber;
-			updatedOrder.total = existing.subtotal + (feeNumber ?? 0);
-		}
-
-		if (body.status !== undefined) {
-			updatedOrder.status = body.status;
-		}
-
-		if (body.notes !== undefined) {
-			updatedOrder.notes = body.notes;
-		}
-
-		updatedOrder.updatedAt = new Date().toISOString();
-
-		orders[orderIndex] = updatedOrder;
-		await writeJsonFile(ORDERS_FILE_PATH, orders);
-
-		return NextResponse.json(updatedOrder, { status: 200 });
+		return NextResponse.json(data, { status: 200 });
 	} catch (error: unknown) {
-		console.error("[PATCH /api/orders/[id]] Error:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[PATCH /api/orders/[id]] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to update order" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Failed to update order.`,
+			},
+			{ status: 502 }
 		);
 	}
 }

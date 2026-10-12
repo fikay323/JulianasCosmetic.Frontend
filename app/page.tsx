@@ -1,7 +1,6 @@
 import React from "react";
-import defaultProducts from "@/src/data/products.json";
-import { readJsonFile } from "@/src/lib/storage";
 import type { Product } from "@/src/types/store";
+import { fetchBackendProducts } from "@/src/lib/backend";
 import { HeroSplit } from "@/src/components/storefront/HeroSplit";
 import { TrustPillars } from "@/src/components/storefront/TrustPillars";
 import { FeaturedBotanicalGrid } from "@/src/components/storefront/FeaturedBotanicalGrid";
@@ -10,10 +9,17 @@ import { RoutineConsultation } from "@/src/components/storefront/RoutineConsulta
 export const dynamic = "force-dynamic";
 
 export default async function HomePage(): Promise<React.JSX.Element> {
-	const products = await readJsonFile<Product[]>(
-		"src/data/products.json",
-		defaultProducts as Product[]
-	);
+	let products: Product[] = [];
+	let error: string | null = null;
+
+	try {
+		products = await fetchBackendProducts();
+	} catch (err: unknown) {
+		error =
+			err instanceof Error
+				? err.message
+				: "Unable to connect to backend service to load catalog.";
+	}
 
 	return (
 		<div className="flex flex-col min-h-screen">
@@ -24,7 +30,7 @@ export default async function HomePage(): Promise<React.JSX.Element> {
 			<TrustPillars />
 
 			{/* Featured Botanical Formulations Grid */}
-			<FeaturedBotanicalGrid products={products} />
+			<FeaturedBotanicalGrid products={products} initialError={error} />
 
 			{/* Personalized Routine Consultation */}
 			<RoutineConsultation />

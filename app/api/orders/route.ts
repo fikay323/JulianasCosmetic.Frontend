@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readJsonFile, writeJsonFile } from "@/src/lib/storage";
-import { buildWhatsAppUrl } from "@/src/lib/utils";
-import defaultProducts from "@/src/data/products.json";
-import type { Order, CartItem, CustomerInfo, OrderItem, Product } from "@/src/types/store";
+import { getBackendApiUrl } from "@/src/lib/backend";
+import type { CustomerInfo, Product } from "@/src/types/store";
 
 export const dynamic = "force-dynamic";
-
-const ORDERS_FILE_PATH = "src/data/orders.json";
-const PRODUCTS_FILE_PATH = "src/data/products.json";
-const STORE_CONCIERGE_PHONE = process.env.NEXT_PUBLIC_CONCIERGE_PHONE || "2347043726428";
 
 interface RequestItemPayload {
 	productId?: string;
 	product?: Product;
 	quantity?: number;
 	selectedSize?: string;
+	size?: string;
 }
 
 interface CreateOrderRequestBody {
@@ -22,20 +17,58 @@ interface CreateOrderRequestBody {
 	items?: RequestItemPayload[];
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
+	const { searchParams } = new URL(request.url);
+	const status = searchParams.get("status");
+	const baseUrl = getBackendApiUrl();
+
+	const query = status ? `?status=${encodeURIComponent(status)}` : "";
+	const endpoint = `${baseUrl}/api/orders${query}`;
+
 	try {
-		const orders = await readJsonFile<Order[]>(ORDERS_FILE_PATH, []);
-		return NextResponse.json(orders, { status: 200 });
+		const res = await fetch(endpoint, {
+			cache: "no-store",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+
+		if (!res.ok) {
+			const errData = (await res.json().catch(() => ({}))) as { error?: string };
+			return NextResponse.json(
+				{
+					error:
+						errData.error ||
+						`Backend returned HTTP ${res.status}: Failed to retrieve orders`,
+				},
+				{ status: res.status }
+			);
+		}
+
+		const data: unknown = await res.json();
+		return NextResponse.json(data, {
+			status: 200,
+			headers: {
+				"Cache-Control": "no-store, max-age=0",
+			},
+		});
 	} catch (error: unknown) {
-		console.error("[GET /api/orders] Error fetching orders:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[GET /api/orders] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to retrieve orders" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Please ensure backend is running.`,
+			},
+			{ status: 502 }
 		);
 	}
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+	const baseUrl = getBackendApiUrl();
+	const endpoint = `${baseUrl}/api/orders`;
+
 	try {
 		const body = (await request.json()) as CreateOrderRequestBody;
 		const { customer, items } = body;
@@ -60,7 +93,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			);
 		}
 
-		// Nigerian phone format validation (+234 or 080/081/090/070 etc)
 		const sanitizedDigits = phone.replace(/[^0-9]/g, "");
 		const isValidNigerianPhone =
 			(sanitizedDigits.startsWith("234") && sanitizedDigits.length === 13) ||
@@ -80,76 +112,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			);
 		}
 
-		// Read existing products to guarantee price authenticity
-		const catalogProducts = await readJsonFile<Product[]>(
-			PRODUCTS_FILE_PATH,
-			defaultProducts as Product[]
-		);
+		const normalizedItems = items.map((item) => ({
+			productId: item.productId || item.product?.id || "",
+			quantity: Math.max(1, item.quantity ?? 1),
+			size: item.selectedSize || item.size || "Standard",
+		}));
 
-		const normalizedCartItems: CartItem[] = [];
-		const orderItems: OrderItem[] = [];
-		let computedSubtotal = 0;
-
-		for (const reqItem of items) {
-			const reqProductId = reqItem.product?.id || reqItem.productId;
-			const quantity = Math.max(1, reqItem.quantity ?? 1);
-
-			const product = catalogProducts.find((p) => p.id === reqProductId) || reqItem.product;
-
-			if (!product) {
-				continue;
-			}
-
-			const lineTotal = product.price * quantity;
-			computedSubtotal += lineTotal;
-
-			normalizedCartItems.push({
-				product,
-				quantity,
-				selectedSize: reqItem.selectedSize || product.size,
-			});
-
-			orderItems.push({
-				productId: product.id,
-				productName: product.name,
-				price: product.price,
-				quantity,
-				productImage: product.images?.[0],
-				size: reqItem.selectedSize || product.size,
-				totalPrice: lineTotal,
-			});
-		}
-
-		if (orderItems.length === 0) {
-			return NextResponse.json(
-				{ error: "Valid product items are required" },
-				{ status: 400 }
-			);
-		}
-
-		const orderId = `order_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-		const orderNumber = `JC-ORD-${Date.now().toString().slice(-6)}`;
-		const timestamp = new Date().toISOString();
-
-		const whatsappUrl = buildWhatsAppUrl(
-			STORE_CONCIERGE_PHONE,
-			{
-				fullName,
-				phone,
-				state,
-				cityLga,
-				address,
-				streetAddress: address,
-				courierNotes: customer.courierNotes || "",
-			},
-			normalizedCartItems,
-			computedSubtotal,
-			orderNumber
-		);
-
-		const newOrder: Order = {
-			id: orderId,
-			orderNumber,
+		const backendPayload = {
 			customer: {
 				fullName,
 				phone,
@@ -157,30 +126,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 				cityLga,
 				address,
 				streetAddress: address,
-				courierNotes: customer.courierNotes || "",
+				courierNotes: customer.courierNotes?.trim() || "",
+				email: customer.email?.trim() || "",
 			},
-			items: orderItems,
-			subtotal: computedSubtotal,
-			agreedDeliveryFee: null,
-			total: computedSubtotal,
-			status: "Awaiting Delivery Agreement",
-			whatsappMessageUrl: whatsappUrl,
-			whatsappUrl,
-			createdAt: timestamp,
-			updatedAt: timestamp,
+			items: normalizedItems,
 		};
 
-		// Read existing orders and persist atomically
-		const existingOrders = await readJsonFile<Order[]>(ORDERS_FILE_PATH, []);
-		const updatedOrders = [newOrder, ...existingOrders];
-		await writeJsonFile(ORDERS_FILE_PATH, updatedOrders);
+		const res = await fetch(endpoint, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify(backendPayload),
+		});
 
-		return NextResponse.json(newOrder, { status: 201 });
+		const data: unknown = await res.json().catch(() => ({}));
+
+		if (!res.ok) {
+			return NextResponse.json(
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
+			);
+		}
+
+		return NextResponse.json(data, { status: 201 });
 	} catch (error: unknown) {
-		console.error("[POST /api/orders] Error creating order:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[POST /api/orders] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to persist order" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Failed to persist order.`,
+			},
+			{ status: 502 }
 		);
 	}
 }

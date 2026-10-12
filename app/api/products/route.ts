@@ -1,34 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readJsonFile, writeJsonFile } from "@/src/lib/storage";
-import defaultProducts from "@/src/data/products.json";
-import type { Product, CreateProductDto, UpdateProductDto } from "@/src/types/store";
+import { getBackendApiUrl } from "@/src/lib/backend";
+import type { CreateProductDto, UpdateProductDto } from "@/src/types/store";
 
 export const dynamic = "force-dynamic";
 
-const PRODUCTS_FILE_PATH = "src/data/products.json";
+export async function GET(request: NextRequest): Promise<NextResponse> {
+	const { searchParams } = new URL(request.url);
+	const category = searchParams.get("category");
+	const baseUrl = getBackendApiUrl();
 
-export async function GET(): Promise<NextResponse> {
+	const query =
+		category && category !== "All"
+			? `?category=${encodeURIComponent(category)}`
+			: "";
+	const endpoint = `${baseUrl}/api/products${query}`;
+
 	try {
-		const products = await readJsonFile<Product[]>(
-			PRODUCTS_FILE_PATH,
-			defaultProducts as Product[]
-		);
-		return NextResponse.json(products, {
+		const res = await fetch(endpoint, {
+			cache: "no-store",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+
+		if (!res.ok) {
+			const errData = (await res.json().catch(() => ({}))) as { error?: string };
+			return NextResponse.json(
+				{
+					error:
+						errData.error ||
+						`Backend returned HTTP ${res.status}: Failed to retrieve products`,
+				},
+				{ status: res.status }
+			);
+		}
+
+		const data: unknown = await res.json();
+		return NextResponse.json(data, {
 			status: 200,
 			headers: {
 				"Cache-Control": "no-store, max-age=0",
 			},
 		});
 	} catch (error: unknown) {
-		console.error("[GET /api/products] Error fetching products:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[GET /api/products] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to retrieve products" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Please ensure the backend is running.`,
+			},
+			{ status: 502 }
 		);
 	}
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+	const baseUrl = getBackendApiUrl();
+	const endpoint = `${baseUrl}/api/products`;
+
 	try {
 		const body = (await request.json()) as CreateProductDto;
 
@@ -46,85 +76,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			);
 		}
 
-		const products = await readJsonFile<Product[]>(
-			PRODUCTS_FILE_PATH,
-			defaultProducts as Product[]
-		);
+		const res = await fetch(endpoint, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify(body),
+		});
 
-		const baseSlug = body.name
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, "-")
-			.replace(/(^-|-$)/g, "");
+		const data: unknown = await res.json().catch(() => ({}));
 
-		let uniqueId = baseSlug;
-		let counter = 1;
-		while (products.some((p) => p.id === uniqueId)) {
-			uniqueId = `${baseSlug}-${counter}`;
-			counter++;
+		if (!res.ok) {
+			return NextResponse.json(
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
+			);
 		}
 
-		const newProduct: Product = {
-			id: uniqueId,
-			slug: uniqueId,
-			name: body.name.trim(),
-			tagline: body.tagline?.trim() || "Cellular Radiance & French Botanical Protection",
-			price: Number(body.price),
-			category: body.category || "Serums",
-			stockStatus: body.stockStatus || "In Stock",
-			inStock: body.inStock !== false && body.stockStatus !== "Out of Stock",
-			featured: Boolean(body.featured),
-			size: body.size?.trim() || "50 ml / 1.7 fl. oz.",
-			rating: 5.0,
-			reviewCount: 0,
-			nafdacRegNo: body.nafdacRegNo?.trim() || "NAFDAC Reg. No. 04-9988",
-			images:
-				body.images && body.images.length > 0
-					? body.images
-					: [
-							"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
-					  ],
-			description:
-				body.description?.trim() ||
-				"An ultra-refined Parisian botanical formulation imported directly from France to protect and nurture melanin-rich skin barriers.",
-			formulation: {
-				phLevel: body.formulation?.phLevel || "5.2 - 5.5",
-				texture: body.formulation?.texture || "Silky fast-absorbing emulsion",
-				skinType: body.formulation?.skinType || "All skin phototypes (I - VI)",
-				keyActives:
-					body.formulation?.keyActives && body.formulation.keyActives.length > 0
-						? body.formulation.keyActives
-						: ["French Botanical Extracts", "Panthenol (Vitamin B5)"],
-			},
-			accordions: {
-				bioActives:
-					body.accordions?.bioActives ||
-					"Formulated in Paris with pure dermatological-grade French botanical actives to restore epidermal radiance.",
-				inci:
-					body.accordions?.inci ||
-					"Aqua, Glycerin, Botanical Squalane, Niacinamide, Camellia Oleifera Seed Oil, Sodium Hyaluronate, Tocopherol, Phenoxyethanol.",
-				ritual:
-					body.accordions?.ritual ||
-					"Apply 2-3 drops or a dime-sized amount to cleansed face and neck morning and evening.",
-				nafdac:
-					body.accordions?.nafdac ||
-					"Verified and tested in adherence to strict cGMP cosmetic guidelines and NAFDAC safety regulations.",
-			},
-		};
-
-		products.unshift(newProduct);
-		await writeJsonFile(PRODUCTS_FILE_PATH, products);
-
-		return NextResponse.json(newProduct, { status: 201 });
+		return NextResponse.json(data, { status: 201 });
 	} catch (error: unknown) {
-		console.error("[POST /api/products] Error creating product:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[POST /api/products] Error forwarding to ${endpoint}:`, msg);
 		return NextResponse.json(
-			{ error: "Failed to create product" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Failed to create formulation.`,
+			},
+			{ status: 502 }
 		);
 	}
 }
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
+	const baseUrl = getBackendApiUrl();
+
 	try {
 		let body: UpdateProductDto = {};
 		try {
@@ -133,26 +119,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 				body = JSON.parse(text) as UpdateProductDto;
 			}
 		} catch (parseErr: unknown) {
-			console.warn("[PATCH /api/products] Could not parse JSON body:", parseErr);
+			console.warn("[PATCH /api/products] JSON parse warning:", parseErr);
 			body = {};
 		}
 
-		const {
-			id,
-			name,
-			tagline,
-			description,
-			category,
-			price,
-			size,
-			stockStatus,
-			inStock,
-			featured,
-			images,
-			nafdacRegNo,
-			formulation,
-			accordions,
-		} = body;
+		const { id } = body;
 
 		if (!id) {
 			return NextResponse.json(
@@ -161,131 +132,81 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 			);
 		}
 
-		const products = await readJsonFile<Product[]>(
-			PRODUCTS_FILE_PATH,
-			defaultProducts as Product[]
-		);
+		const endpoint = `${baseUrl}/api/products/${encodeURIComponent(id)}`;
 
-		const productIndex = products.findIndex(
-			(p) => p.id === id || p.slug === id || p.name.toLowerCase() === id.toLowerCase()
-		);
-		if (productIndex === -1) {
+		const res = await fetch(endpoint, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify(body),
+		});
+
+		const data: unknown = await res.json().catch(() => ({}));
+
+		if (!res.ok) {
 			return NextResponse.json(
-				{ error: `Product with id '${id}' not found` },
-				{ status: 404 }
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
 			);
 		}
 
-		const existing = products[productIndex];
-		const updatedProduct: Product = { ...existing };
-
-		if (name !== undefined && name.trim()) {
-			updatedProduct.name = name.trim();
-		}
-
-		if (tagline !== undefined) {
-			updatedProduct.tagline = tagline.trim();
-		}
-
-		if (description !== undefined) {
-			updatedProduct.description = description.trim();
-		}
-
-		if (category !== undefined) {
-			updatedProduct.category = category;
-		}
-
-		if (price !== undefined) {
-			updatedProduct.price = Number(price);
-		}
-
-		if (size !== undefined) {
-			updatedProduct.size = size.trim();
-		}
-
-		if (stockStatus !== undefined) {
-			updatedProduct.stockStatus = stockStatus;
-			updatedProduct.inStock = stockStatus === "In Stock";
-		} else if (inStock !== undefined) {
-			updatedProduct.inStock = inStock;
-			updatedProduct.stockStatus = inStock ? "In Stock" : "Out of Stock";
-		}
-
-		if (featured !== undefined) {
-			updatedProduct.featured = Boolean(featured);
-		}
-
-		if (images !== undefined && images.length > 0) {
-			updatedProduct.images = images;
-		}
-
-		if (nafdacRegNo !== undefined) {
-			updatedProduct.nafdacRegNo = nafdacRegNo.trim();
-		}
-
-		if (formulation !== undefined) {
-			updatedProduct.formulation = {
-				...existing.formulation,
-				...formulation,
-				keyActives: formulation.keyActives || existing.formulation?.keyActives || [],
-			};
-		}
-
-		if (accordions !== undefined) {
-			updatedProduct.accordions = {
-				...existing.accordions,
-				...accordions,
-			};
-		}
-
-		products[productIndex] = updatedProduct;
-		await writeJsonFile(PRODUCTS_FILE_PATH, products);
-
-		return NextResponse.json(updatedProduct, { status: 200 });
+		return NextResponse.json(data, { status: 200 });
 	} catch (error: unknown) {
-		console.error("[PATCH /api/products] Error updating product:", error);
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error("[PATCH /api/products] Error forwarding to backend:", msg);
 		return NextResponse.json(
-			{ error: "Failed to update product" },
-			{ status: 500 }
+			{
+				error: `Backend service unreachable: ${msg}. Failed to update formulation.`,
+			},
+			{ status: 502 }
 		);
 	}
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
-	try {
-		const { searchParams } = new URL(request.url);
-		const id = searchParams.get("id");
+	const { searchParams } = new URL(request.url);
+	const id = searchParams.get("id");
+	const baseUrl = getBackendApiUrl();
 
-		if (!id) {
-			return NextResponse.json(
-				{ error: "Product id is required" },
-				{ status: 400 }
-			);
-		}
-
-		const products = await readJsonFile<Product[]>(
-			PRODUCTS_FILE_PATH,
-			defaultProducts as Product[]
-		);
-
-		const filtered = products.filter(
-			(p) => p.id !== id && p.slug !== id
-		);
-
-		if (filtered.length === products.length) {
-			return NextResponse.json(
-				{ error: `Product with id '${id}' not found` },
-				{ status: 404 }
-			);
-		}
-
-		await writeJsonFile(PRODUCTS_FILE_PATH, filtered);
-		return NextResponse.json({ success: true, id }, { status: 200 });
-	} catch (error: unknown) {
-		console.error("[DELETE /api/products] Error deleting product:", error);
+	if (!id) {
 		return NextResponse.json(
-			{ error: "Failed to delete product" },
-			{ status: 500 }
+			{ error: "Product id is required" },
+			{ status: 400 }
+		);
+	}
+
+	const endpoint = `${baseUrl}/api/products/${encodeURIComponent(id)}`;
+
+	try {
+		const res = await fetch(endpoint, {
+			method: "DELETE",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+
+		const data: unknown = await res.json().catch(() => ({}));
+
+		if (!res.ok) {
+			return NextResponse.json(
+				data || { error: `Backend returned ${res.status}` },
+				{ status: res.status }
+			);
+		}
+
+		return NextResponse.json(data, { status: 200 });
+	} catch (error: unknown) {
+		const msg =
+			error instanceof Error ? error.message : "Network error contacting backend";
+		console.error(`[DELETE /api/products] Error forwarding to ${endpoint}:`, msg);
+		return NextResponse.json(
+			{
+				error: `Backend service unreachable: ${msg}. Failed to delete product.`,
+			},
+			{ status: 502 }
 		);
 	}
 }

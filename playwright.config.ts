@@ -26,10 +26,21 @@ export default defineConfig({
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
-	webServer: {
-		command: "npx next dev -p 3005",
-		port: 3005,
-		reuseExistingServer: false,
-		timeout: 120 * 1000,
-	},
+	webServer: [
+		{
+			command: "node tests/test-backend.mjs",
+			port: 5279,
+			reuseExistingServer: false,
+			timeout: 30 * 1000,
+		},
+		{
+			command: "npx next dev -p 3005",
+			port: 3005,
+			reuseExistingServer: false,
+			timeout: 120 * 1000,
+			env: {
+				BACKEND_API_URL: "http://127.0.0.1:5279",
+			},
+		},
+	],
 });

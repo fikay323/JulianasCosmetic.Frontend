@@ -2,16 +2,15 @@ import { test, expect } from "@playwright/test";
 import path from "node:path";
 import { promises as fs } from "node:fs";
 import { formatNaira, sanitizePhoneNumber, buildWhatsAppUrl, cn } from "@/src/lib/utils";
-import { readJsonFile, writeJsonFile } from "@/src/lib/storage";
+import { getBackendApiUrl } from "@/src/lib/backend";
 import type { CustomerInfo, CartItem, Product } from "@/src/types/store";
 
-test.describe("M2 Domain Foundation & Storage Unit Tests", () => {
+test.describe("Domain Foundation & Backend Client Unit Tests", () => {
 	test("formatNaira correctly formats currency with ₦ symbol and thousands separators", () => {
 		expect(formatNaira(0)).toBe("₦0");
 		expect(formatNaira(38500)).toBe("₦38,500");
 		expect(formatNaira(28000)).toBe("₦28,000");
 		expect(formatNaira(1250000)).toBe("₦1,250,000");
-		// Edge cases: NaN, negative, decimals
 		expect(formatNaira(NaN)).toBe("₦0");
 		expect(formatNaira(35000.75)).toBe("₦35,001");
 	});
@@ -87,69 +86,21 @@ test.describe("M2 Domain Foundation & Storage Unit Tests", () => {
 		expect(result).toBe("p-2 text-primary font-bold");
 	});
 
-	test("storage helpers readJsonFile and writeJsonFile perform atomic file operations", async () => {
-		const testFile = path.resolve(process.cwd(), "tests", "fixtures", `test-${Date.now()}.json`);
-		const sampleData = { store: "Juliana's Cosmetics", active: true, count: 42 };
-
-		// Fallback test
-		const fallback = await readJsonFile("/non-existent-path.json", { default: true });
-		expect(fallback).toEqual({ default: true });
-
-		// Atomic write test
-		await writeJsonFile(testFile, sampleData);
-
-		// Read back test
-		const readData = await readJsonFile<typeof sampleData>(testFile, { store: "", active: false, count: 0 });
-		expect(readData).toEqual(sampleData);
-
-		// Cleanup
-		await fs.unlink(testFile).catch(() => {
-			/* ignore cleanup */
-		});
+	test("getBackendApiUrl resolves default backend port without trailing slash", () => {
+		const url = getBackendApiUrl();
+		expect(url).toBeTruthy();
+		expect(url.endsWith("/")).toBe(false);
 	});
 
-	test("products.json catalog conforms to luxury botanical specifications and includes all 6 required products", async () => {
-		const productsPath = path.resolve(process.cwd(), "src", "data", "products.json");
-		const raw = await fs.readFile(productsPath, "utf-8");
-		const products: Product[] = JSON.parse(raw);
-
-		expect(Array.isArray(products)).toBe(true);
-		expect(products.length).toBeGreaterThanOrEqual(6);
-
-		const requiredNames = [
-			"Luminous Peptide Glaze Serum",
-			"Parisian Mineral Sun Shield SPF 50",
-			"Botanical Purifying Jelly Cleanser",
-			"Botanical Hydration Crème",
-			"Parisian Botanical Barrier Oil",
-			"Hibiscus AHA Glow Tonic",
-		];
-
-		for (const name of requiredNames) {
-			const found = products.find((p) => p.name === name);
-			expect(found, `Expected product "${name}" to exist in catalog`).toBeDefined();
-			if (!found) continue;
-
-			expect(found.price).toBeGreaterThan(0);
-			expect(found.stockStatus).toBe("In Stock");
-			expect(found.images.length).toBeGreaterThanOrEqual(1);
-			expect(found.formulation.phLevel).toBeTruthy();
-			expect(found.formulation.texture).toBeTruthy();
-			expect(found.formulation.skinType).toBeTruthy();
-			expect(found.formulation.keyActives.length).toBeGreaterThanOrEqual(2);
-			expect(found.accordions.bioActives).toBeTruthy();
-			expect(found.accordions.inci).toBeTruthy();
-			expect(found.accordions.ritual).toBeTruthy();
-			expect(found.accordions.nafdac).toContain("NAFDAC");
+	test("fallback mock data directory src/data is completely removed from frontend", async () => {
+		const dataDir = path.resolve(process.cwd(), "src", "data");
+		let exists = false;
+		try {
+			await fs.access(dataDir);
+			exists = true;
+		} catch {
+			exists = false;
 		}
-	});
-
-	test("orders.json is initialized as empty array", async () => {
-		const ordersPath = path.resolve(process.cwd(), "src", "data", "orders.json");
-		const raw = await fs.readFile(ordersPath, "utf-8");
-		const orders: unknown = JSON.parse(raw);
-
-		expect(Array.isArray(orders)).toBe(true);
-		expect((orders as unknown[]).length).toBe(0);
+		expect(exists).toBe(false);
 	});
 });

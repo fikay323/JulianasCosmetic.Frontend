@@ -17,14 +17,14 @@ const nextConfig: NextConfig = {
 
 		const sanitizedUrl = backendUrl.replace(/\/$/, "");
 		return {
-			beforeFiles: [
+			beforeFiles: [],
+			afterFiles: [],
+			fallback: [
 				{
 					source: "/api/:path*",
 					destination: `${sanitizedUrl}/api/:path*`,
 				},
 			],
-			afterFiles: [],
-			fallback: [],
 		};
 	},
 };

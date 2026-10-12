@@ -1,8 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
-import defaultProducts from "@/src/data/products.json";
-import { readJsonFile } from "@/src/lib/storage";
 import type { Product } from "@/src/types/store";
+import { fetchBackendProducts } from "@/src/lib/backend";
 import { ProductListingClient } from "@/src/components/storefront/ProductListingClient";
 
 export const dynamic = "force-dynamic";
@@ -38,10 +37,17 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage(): Promise<React.JSX.Element> {
-	const products = await readJsonFile<Product[]>(
-		"src/data/products.json",
-		defaultProducts as Product[]
-	);
+	let products: Product[] = [];
+	let error: string | null = null;
 
-	return <ProductListingClient initialProducts={products} />;
+	try {
+		products = await fetchBackendProducts();
+	} catch (err: unknown) {
+		error =
+			err instanceof Error
+				? err.message
+				: "Unable to connect to backend service to load catalog.";
+	}
+
+	return <ProductListingClient initialProducts={products} initialError={error} />;
 }

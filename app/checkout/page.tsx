@@ -13,6 +13,7 @@ import {
 	Lock,
 } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
+import { useToast } from "@/src/context/ToastContext";
 import { formatNaira } from "@/src/lib/utils";
 import type { CustomerInfo, Order } from "@/src/types/store";
 
@@ -58,6 +59,7 @@ const NIGERIAN_STATES = [
 
 export default function CheckoutPage(): React.JSX.Element {
 	const { items, subtotal, clearCart } = useCart();
+	const { toast } = useToast();
 
 	const [formData, setFormData] = useState<CustomerInfo>({
 		fullName: "",
@@ -87,7 +89,9 @@ export default function CheckoutPage(): React.JSX.Element {
 		setErrorMessage(null);
 
 		if (items.length === 0 && !completedOrder) {
-			setErrorMessage("Your shopping bag is empty. Please add items before checking out.");
+			const emptyMsg = "Your shopping bag is empty. Please add items before checking out.";
+			setErrorMessage(emptyMsg);
+			toast.error(emptyMsg, "Empty Cart");
 			return;
 		}
 
@@ -107,15 +111,17 @@ export default function CheckoutPage(): React.JSX.Element {
 
 			if (!response.ok) {
 				const errorData = (await response.json().catch(() => ({}))) as { error?: string };
-				throw new Error(errorData.error || "Failed to submit order");
+				throw new Error(errorData.error || "Failed to submit order to backend");
 			}
 
 			const createdOrder = (await response.json()) as Order;
 			clearCart();
 			setCompletedOrder(createdOrder);
+			toast.success("Order persisted successfully with concierge dispatch", "Order Logged");
 		} catch (err: unknown) {
 			const message = err instanceof Error ? err.message : "An unexpected error occurred.";
 			setErrorMessage(message);
+			toast.error(message, "Order Submission Error");
 		} finally {
 			setIsSubmitting(false);
 		}

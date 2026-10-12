@@ -14,9 +14,11 @@ import {
 	AlertCircle,
 } from "lucide-react";
 import { formatNaira, sanitizePhoneNumber } from "@/src/lib/utils";
+import { useToast } from "@/src/context/ToastContext";
 import type { Order, OrderStatus } from "@/src/types/store";
 
 export default function AdminOrdersPage(): React.JSX.Element {
+	const { toast } = useToast();
 	const [orders, setOrders] = useState<Order[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,8 @@ export default function AdminOrdersPage(): React.JSX.Element {
 				cache: "no-store",
 			});
 			if (!res.ok) {
-				throw new Error("Failed to load orders");
+				const errData = (await res.json().catch(() => ({}))) as { error?: string };
+				throw new Error(errData.error || `HTTP ${res.status}: Failed to load orders from backend`);
 			}
 			const data = (await res.json()) as Order[];
 			setOrders(data);
@@ -44,19 +47,21 @@ export default function AdminOrdersPage(): React.JSX.Element {
 			});
 			setFeeInputs(initialFees);
 		} catch (err: unknown) {
-			const msg = err instanceof Error ? err.message : "Error fetching orders";
+			const msg = err instanceof Error ? err.message : "Error fetching orders from backend";
 			setError(msg);
+			toast.error(msg, "Backend Orders Error");
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [toast]);
 
 	useEffect(() => {
 		let isMounted = true;
 		fetch("/api/orders", { cache: "no-store" })
-			.then((res) => {
+			.then(async (res) => {
 				if (!res.ok) {
-					throw new Error("Failed to load orders");
+					const errData = (await res.json().catch(() => ({}))) as { error?: string };
+					throw new Error(errData.error || `HTTP ${res.status}: Failed to load orders from backend`);
 				}
 				return res.json();
 			})
@@ -76,8 +81,9 @@ export default function AdminOrdersPage(): React.JSX.Element {
 			})
 			.catch((err: unknown) => {
 				if (isMounted) {
-					const msg = err instanceof Error ? err.message : "Error fetching orders";
+					const msg = err instanceof Error ? err.message : "Error fetching orders from backend";
 					setError(msg);
+					toast.error(msg, "Backend Orders Error");
 					setLoading(false);
 				}
 			});
@@ -85,7 +91,7 @@ export default function AdminOrdersPage(): React.JSX.Element {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [toast]);
 
 	const handleRefresh = (): void => {
 		setLoading(true);

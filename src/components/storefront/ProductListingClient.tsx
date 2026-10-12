@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
-import { SlidersHorizontal, Sparkles } from "lucide-react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import { SlidersHorizontal, Sparkles, AlertCircle, RefreshCw } from "lucide-react";
 import type { Product, ProductCategory } from "@/src/types/store";
+import { useToast } from "@/src/context/ToastContext";
 import { ProductCard } from "./ProductCard";
 
 export interface ProductListingClientProps {
 	initialProducts: Product[];
+	initialError?: string | null;
 }
 
 const CATEGORIES: Array<"All" | ProductCategory> = [
@@ -22,29 +24,44 @@ type SortOption = "Featured" | "Price: Low to High" | "Price: High to Low" | "Ne
 
 export function ProductListingClient({
 	initialProducts,
+	initialError,
 }: ProductListingClientProps): React.JSX.Element {
 	const [products, setProducts] = useState<Product[]>(initialProducts);
+	const [error, setError] = useState<string | null>(initialError ?? null);
+	const [isRetrying, setIsRetrying] = useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = useState<"All" | ProductCategory>("All");
 	const [sortBy, setSortBy] = useState<SortOption>("Featured");
+	const { toast } = useToast();
 
-	// Sync with /api/products if available (for runtime updates)
+	const loadProducts = useCallback(async (): Promise<void> => {
+		setIsRetrying(true);
+		try {
+			const res = await fetch("/api/products", { cache: "no-store" });
+			if (!res.ok) {
+				const errData = (await res.json().catch(() => ({}))) as { error?: string };
+				throw new Error(errData.error || `HTTP ${res.status}: Failed to fetch products`);
+			}
+			const data = (await res.json()) as Product[];
+			setProducts(data);
+			setError(null);
+			if (error) {
+				toast.success("Successfully loaded formulations from backend", "Connected");
+			}
+		} catch (err: unknown) {
+			const msg = err instanceof Error ? err.message : "Failed to load formulations from backend";
+			setError(msg);
+			toast.error(msg, "Backend Connection Failed");
+		} finally {
+			setIsRetrying(false);
+		}
+	}, [error, toast]);
+
+	// Initial error toast
 	useEffect(() => {
-		let isMounted = true;
-		fetch("/api/products")
-			.then((res) => (res.ok ? res.json() : null))
-			.then((data: unknown) => {
-				if (isMounted && Array.isArray(data) && data.length > 0) {
-					setProducts(data as Product[]);
-				}
-			})
-			.catch(() => {
-				/* ignore if API route not yet active */
-			});
-
-		return () => {
-			isMounted = false;
-		};
-	}, []);
+		if (initialError) {
+			toast.error(initialError, "Backend Connection Failed");
+		}
+	}, [initialError, toast]);
 
 	// Filter & Sort Logic
 	const filteredAndSortedProducts = useMemo(() => {
@@ -64,7 +81,6 @@ export function ProductListingClient({
 				list.sort((a, b) => b.price - a.price);
 				break;
 			case "Newest":
-				// Sort by id or default order
 				list.reverse();
 				break;
 			case "Featured":
@@ -98,74 +114,115 @@ export function ProductListingClient({
 						The Formulations Archive
 					</h1>
 					<p className="text-sm sm:text-base font-light text-on-surface-variant">
-						Showing {filteredAndSortedProducts.length} Clean Botanical Formulations • Formulated for Melanin-Rich Skin
+						Dermatologist-grade botanical skincare imported directly from France.
+						Engineered to protect cellular lipid barriers and illuminate melanin-rich skin.
 					</p>
 				</div>
 
-				{/* Filter & Sort Controls */}
-				<div className="mt-10 flex flex-col gap-6 border-b border-border-delicate pb-8 sm:flex-row sm:items-center sm:justify-between">
-					{/* Category Filter Pills */}
-					<div className="flex flex-wrap items-center gap-2">
-						{CATEGORIES.map((category) => {
-							const isActive = selectedCategory === category;
-							return (
-								<button
-									key={category}
-									type="button"
-									onClick={() => setSelectedCategory(category)}
-									className={`rounded-full px-5 py-2 text-xs font-semibold uppercase tracking-wider transition-all ${
-										isActive
-											? "bg-primary text-white shadow-sm"
-											: "bg-surface-container-low text-primary/80 hover:bg-surface-container hover:text-primary"
-									}`}
-								>
-									{category}
-								</button>
-							);
-						})}
-					</div>
-
-					{/* Sorting Select */}
-					<div className="flex items-center gap-2">
-						<SlidersHorizontal className="h-4 w-4 text-on-surface-variant" />
-						<label htmlFor="sort-select" className="text-xs font-semibold text-primary uppercase tracking-wider">
-							Sort:
-						</label>
-						<select
-							id="sort-select"
-							value={sortBy}
-							onChange={(e) => setSortBy(e.target.value as SortOption)}
-							className="rounded-full border border-border-delicate bg-white px-4 py-2 text-xs font-medium text-primary shadow-sm focus:border-primary focus:outline-none"
-						>
-							<option value="Featured">Featured Editorial</option>
-							<option value="Price: Low to High">Price: Low to High</option>
-							<option value="Price: High to Low">Price: High to Low</option>
-							<option value="Newest">Newest Harvest</option>
-						</select>
-					</div>
-				</div>
-
-				{/* Catalog Product Grid */}
-				{filteredAndSortedProducts.length === 0 ? (
-					<div className="py-20 text-center">
-						<p className="font-serif text-lg text-primary">No formulations found</p>
-						<p className="mt-1 text-sm text-on-surface-variant">
-							Try selecting another category pill or clearing filters.
+				{/* Error State Banner if backend fails */}
+				{error && products.length === 0 ? (
+					<div className="mt-12 rounded-2xl border border-error/30 bg-[#281316] p-8 text-center text-[#FFE8EA] shadow-xl">
+						<div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-error/20 text-[#FF6E7F]">
+							<AlertCircle className="h-7 w-7" />
+						</div>
+						<h3 className="mt-4 font-serif text-xl font-medium text-white">
+							Unable to Load Catalog from Backend
+						</h3>
+						<p className="mt-2 text-xs text-[#FFE8EA]/80 max-w-lg mx-auto">
+							{error}
 						</p>
 						<button
 							type="button"
-							onClick={() => setSelectedCategory("All")}
-							className="mt-4 inline-flex rounded-full bg-primary px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-white"
+							onClick={() => void loadProducts()}
+							disabled={isRetrying}
+							className="mt-6 inline-flex items-center gap-2 rounded-full border border-error/40 bg-surface px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-primary hover:bg-surface-card transition-all disabled:opacity-50"
 						>
-							Reset Filters
+							<RefreshCw className={`h-3.5 w-3.5 ${isRetrying ? "animate-spin" : ""}`} />
+							<span>{isRetrying ? "Connecting..." : "Retry Backend Connection"}</span>
 						</button>
 					</div>
 				) : (
-					<div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-						{filteredAndSortedProducts.map((product) => (
-							<ProductCard key={product.id} product={product} />
-						))}
-					</div>
+					<>
+						{/* Filter & Sorting Controls */}
+						<div className="mt-10 flex flex-col gap-6 border-y border-border-delicate py-6 sm:flex-row sm:items-center sm:justify-between">
+							{/* Category Pills */}
+							<div className="flex flex-wrap items-center gap-2">
+								{CATEGORIES.map((cat) => (
+									<button
+										key={cat}
+										type="button"
+										onClick={() => setSelectedCategory(cat)}
+										className={`rounded-full px-4 py-2 text-xs font-medium tracking-wide transition-all ${
+											selectedCategory === cat
+												? "bg-primary text-white shadow-sm"
+												: "bg-surface-card text-on-surface-variant border border-border-delicate hover:text-primary hover:border-border"
+										}`}
+									>
+										{cat}
+									</button>
+								))}
+							</div>
+
+							{/* Sort Selector */}
+							<div className="flex items-center gap-3">
+								<div className="flex items-center gap-2 text-xs text-on-surface-variant">
+									<SlidersHorizontal className="h-3.5 w-3.5" />
+									<span className="uppercase tracking-wider font-semibold text-[10px]">Sort by</span>
+								</div>
+								<select
+									id="sort-select"
+									aria-label="Sort by"
+									value={sortBy}
+									onChange={(e) => setSortBy(e.target.value as SortOption)}
+									className="rounded-full border border-border-delicate bg-surface-card px-4 py-2 text-xs font-medium text-primary focus:border-secondary focus:outline-none transition-colors"
+								>
+									<option value="Featured">Featured First</option>
+									<option value="Price: Low to High">Price: Low to High</option>
+									<option value="Price: High to Low">Price: High to Low</option>
+									<option value="Newest">Newest Additions</option>
+								</select>
+							</div>
+						</div>
+
+						{/* Results Count */}
+						<div className="mt-6 flex items-center justify-between text-xs text-on-surface-variant">
+							<span>
+								Showing <strong className="text-primary">{filteredAndSortedProducts.length}</strong> formulations
+							</span>
+							{selectedCategory !== "All" && (
+								<button
+									type="button"
+									onClick={() => setSelectedCategory("All")}
+									className="text-secondary-dark hover:underline"
+								>
+									Reset filter
+								</button>
+							)}
+						</div>
+
+						{/* Products Grid */}
+						{filteredAndSortedProducts.length === 0 ? (
+							<div className="mt-16 text-center py-20 rounded-2xl border border-dashed border-border-delicate">
+								<p className="font-serif text-lg text-primary">No formulations found</p>
+								<p className="mt-1 text-xs text-on-surface-variant">
+									No active items currently match the &ldquo;{selectedCategory}&rdquo; category.
+								</p>
+								<button
+									type="button"
+									onClick={() => setSelectedCategory("All")}
+									className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-xs font-semibold text-white"
+								>
+									View All Formulations
+								</button>
+							</div>
+						) : (
+							<div className="mt-8 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+								{filteredAndSortedProducts.map((product) => (
+									<ProductCard key={product.id} product={product} />
+								))}
+							</div>
+						)}
+					</>
 				)}
 			</div>
 		</div>

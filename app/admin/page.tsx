@@ -8,20 +8,32 @@ import {
 	TrendingUp,
 	Clock,
 	CheckCircle2,
+	AlertCircle,
 } from "lucide-react";
-import { readJsonFile } from "@/src/lib/storage";
+import { fetchBackendOrders, fetchBackendProducts } from "@/src/lib/backend";
 import { formatNaira } from "@/src/lib/utils";
-import defaultProducts from "@/src/data/products.json";
 import type { Order, Product } from "@/src/types/store";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage(): Promise<React.JSX.Element> {
-	const orders = await readJsonFile<Order[]>("src/data/orders.json", []);
-	const products = await readJsonFile<Product[]>(
-		"src/data/products.json",
-		defaultProducts as Product[]
-	);
+	let orders: Order[] = [];
+	let products: Product[] = [];
+	let backendError: string | null = null;
+
+	try {
+		const [ordersRes, productsRes] = await Promise.all([
+			fetchBackendOrders(),
+			fetchBackendProducts(),
+		]);
+		orders = ordersRes;
+		products = productsRes;
+	} catch (err: unknown) {
+		backendError =
+			err instanceof Error
+				? err.message
+				: "Unable to connect to backend service. Metrics may be incomplete.";
+	}
 
 	const awaitingAgreementCount = orders.filter(
 		(o) => o.status === "Awaiting Delivery Agreement"
@@ -68,6 +80,24 @@ export default async function AdminDashboardPage(): Promise<React.JSX.Element> {
 						</Link>
 					</div>
 				</div>
+
+				{/* Backend Connection Error Banner */}
+				{backendError && (
+					<div className="mt-6 flex items-start gap-3 rounded-2xl border border-error/30 bg-[#281316] p-5 text-xs text-[#FFE8EA] shadow-md">
+						<AlertCircle className="h-5 w-5 flex-shrink-0 text-[#FF6E7F] mt-0.5" />
+						<div>
+							<h3 className="font-semibold uppercase tracking-wider text-[#FF6E7F]">
+								Backend Connection Warning
+							</h3>
+							<p className="mt-1 opacity-90 leading-relaxed">
+								{backendError}
+							</p>
+							<p className="mt-1 text-[11px] opacity-75">
+								Zero fallback mock data is being displayed. Verify your backend Web API is running on localhost:5279 or configured via BACKEND_API_URL.
+							</p>
+						</div>
+					</div>
+				)}
 
 				{/* Quick Stats Grid */}
 				<div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

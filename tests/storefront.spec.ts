@@ -1,53 +1,21 @@
-import path from "node:path";
-import { promises as fs } from "node:fs";
 import { test, expect, Page, Locator, Response } from "@playwright/test";
 
-const PRODUCTS_PATH = path.resolve(process.cwd(), "src", "data", "products.json");
-const PRODUCTS_BAK_PATH = path.resolve(process.cwd(), "src", "data", "products.json.bak");
-const ORDERS_PATH = path.resolve(process.cwd(), "src", "data", "orders.json");
-const ORDERS_BAK_PATH = path.resolve(process.cwd(), "src", "data", "orders.json.bak");
+const TEST_BACKEND_URL = "http://127.0.0.1:5279";
 
 test.beforeAll(async () => {
-	// Self-healing: if a prior abnormal exit left .bak files, restore them first
-	try {
-		await fs.access(PRODUCTS_BAK_PATH);
-		await fs.copyFile(PRODUCTS_BAK_PATH, PRODUCTS_PATH);
-		await fs.unlink(PRODUCTS_BAK_PATH);
-	} catch {
-		// No leftover products backup
-	}
-
-	try {
-		await fs.access(ORDERS_BAK_PATH);
-		await fs.copyFile(ORDERS_BAK_PATH, ORDERS_PATH);
-		await fs.unlink(ORDERS_BAK_PATH);
-	} catch {
-		// No leftover orders backup
-	}
-
-	// Create fresh backups before running tests
-	await fs.copyFile(PRODUCTS_PATH, PRODUCTS_BAK_PATH);
-	await fs.copyFile(ORDERS_PATH, ORDERS_BAK_PATH);
+	await fetch(`${TEST_BACKEND_URL}/api/test/reset`, {
+		method: "POST",
+	}).catch(() => {
+		/* ignore if backend starting */
+	});
 });
 
 test.afterAll(async () => {
-	// Teardown: restore products.json from backup
-	try {
-		await fs.access(PRODUCTS_BAK_PATH);
-		await fs.copyFile(PRODUCTS_BAK_PATH, PRODUCTS_PATH);
-		await fs.unlink(PRODUCTS_BAK_PATH);
-	} catch (err: unknown) {
-		console.error("[afterAll] Error restoring products.json:", err);
-	}
-
-	// Teardown: restore orders.json from backup
-	try {
-		await fs.access(ORDERS_BAK_PATH);
-		await fs.copyFile(ORDERS_BAK_PATH, ORDERS_PATH);
-		await fs.unlink(ORDERS_BAK_PATH);
-	} catch (err: unknown) {
-		console.error("[afterAll] Error restoring orders.json:", err);
-	}
+	await fetch(`${TEST_BACKEND_URL}/api/test/reset`, {
+		method: "POST",
+	}).catch(() => {
+		/* ignore */
+	});
 });
 
 test.beforeEach(async ({ context }) => {
@@ -503,6 +471,49 @@ test.describe("Tier 2: Boundary & Corner Cases", () => {
 		// Assert products table unlocks
 		await expect(page.locator('[data-testid="products-table"]')).toBeVisible({ timeout: 15000 });
 		await freshContext.close();
+	});
+
+	test("When backend fails to fetch data, frontend throws an error toast and displays zero fallback mock data", async ({ page }) => {
+		try {
+			// Simulate backend outage
+			await fetch(`${TEST_BACKEND_URL}/api/test/toggle-outage`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ enabled: true }),
+			});
+
+			await page.goto("/products");
+
+			// Assert error toast is thrown and visible
+			const errorToast = page.locator('[role="alert"]').filter({
+				hasText: /Backend|Failed|unavailable/i,
+			}).first();
+			await expect(errorToast).toBeVisible({ timeout: 10000 });
+
+			// Assert zero fallback mock products are rendered
+			const productCards = page.locator('[data-testid="product-card"]');
+			await expect(productCards).toHaveCount(0);
+
+			// Restore backend and verify retry works
+			await fetch(`${TEST_BACKEND_URL}/api/test/toggle-outage`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ enabled: false }),
+			});
+
+			const retryBtn = page.locator('button:has-text("Retry")').first();
+			if (await retryBtn.isVisible()) {
+				await retryBtn.click();
+				await expect(productCards.first()).toBeVisible({ timeout: 10000 });
+			}
+		} finally {
+			// Ensure outage is disabled for subsequent tests
+			await fetch(`${TEST_BACKEND_URL}/api/test/toggle-outage`, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ enabled: false }),
+			});
+		}
 	});
 });
 
