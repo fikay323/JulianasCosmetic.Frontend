@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { formatNaira } from "@/src/lib/utils";
 import { useToast } from "@/src/context/ToastContext";
+import { ProductImageUploader } from "@/src/components/admin/ProductImageUploader";
 import type { Product, ProductCategory, CreateProductDto, UpdateProductDto } from "@/src/types/store";
 
 const CATEGORIES: ProductCategory[] = [
@@ -44,6 +45,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 	// Modal State for adding a product
 	const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
 	const [isSubmittingNew, setIsSubmittingNew] = useState<boolean>(false);
+	const [hasAddPendingPreview, setHasAddPendingPreview] = useState<boolean>(false);
 	const [newProductForm, setNewProductForm] = useState<{
 		name: string;
 		category: ProductCategory;
@@ -52,6 +54,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 		tagline: string;
 		description: string;
 		imageUrl: string;
+		imagePublicId: string;
 		keyActives: string;
 		featured: boolean;
 		inStock: boolean;
@@ -62,7 +65,8 @@ export default function AdminProductsPage(): React.JSX.Element {
 		size: "50 ml / 1.7 fl. oz.",
 		tagline: "Cellular Radiance & French Botanical Protection",
 		description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
-		imageUrl: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
+		imageUrl: "",
+		imagePublicId: "",
 		keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
 		featured: false,
 		inStock: true,
@@ -71,6 +75,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 	// Modal State for editing an existing product
 	const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 	const [isSubmittingEdit, setIsSubmittingEdit] = useState<boolean>(false);
+	const [hasEditPendingPreview, setHasEditPendingPreview] = useState<boolean>(false);
 	const [editProductForm, setEditProductForm] = useState<{
 		id: string;
 		name: string;
@@ -80,6 +85,8 @@ export default function AdminProductsPage(): React.JSX.Element {
 		tagline: string;
 		description: string;
 		imageUrl: string;
+		imagePublicId: string;
+		originalImageUrl: string;
 		keyActives: string;
 		nafdacRegNo: string;
 		ritual: string;
@@ -95,6 +102,8 @@ export default function AdminProductsPage(): React.JSX.Element {
 		tagline: "",
 		description: "",
 		imageUrl: "",
+		imagePublicId: "",
+		originalImageUrl: "",
 		keyActives: "",
 		nafdacRegNo: "",
 		ritual: "",
@@ -287,10 +296,51 @@ export default function AdminProductsPage(): React.JSX.Element {
 		}
 	};
 
+	const handleCancelAddModal = async (): Promise<void> => {
+		if (newProductForm.imagePublicId || newProductForm.imageUrl) {
+			await fetch("/api/images", {
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					publicId: newProductForm.imagePublicId,
+					imageUrl: newProductForm.imageUrl,
+				}),
+			}).catch(() => {});
+		}
+		setHasAddPendingPreview(false);
+		setNewProductForm({
+			name: "",
+			category: "Serums",
+			price: "",
+			size: "50 ml / 1.7 fl. oz.",
+			tagline: "Cellular Radiance & French Botanical Protection",
+			description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
+			imageUrl: "",
+			imagePublicId: "",
+			keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
+			featured: false,
+			inStock: true,
+		});
+		setIsAddModalOpen(false);
+	};
+
 	const handleCreateProduct = async (e: React.FormEvent): Promise<void> => {
 		e.preventDefault();
+		if (hasAddPendingPreview) {
+			toast.warning(
+				"Please click 'Confirm & Upload' on your selected image preview before creating the formulation.",
+				"Unconfirmed Image Preview"
+			);
+			return;
+		}
+
 		if (!newProductForm.name.trim()) {
 			setError("Formulation name is required.");
+			return;
+		}
+
+		if (!newProductForm.imageUrl.trim()) {
+			toast.error("Please select and confirm-upload a product image first.", "Image Required");
 			return;
 		}
 
@@ -342,6 +392,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 			setProducts((prev) => [created, ...prev]);
 			setPriceInputs((prev) => ({ ...prev, [created.id]: String(created.price) }));
 			setIsAddModalOpen(false);
+			setHasAddPendingPreview(false);
 			setSuccessMsg(`Successfully added formulation "${created.name}" to catalog!`);
 
 			// Reset form
@@ -352,19 +403,24 @@ export default function AdminProductsPage(): React.JSX.Element {
 				size: "50 ml / 1.7 fl. oz.",
 				tagline: "Cellular Radiance & French Botanical Protection",
 				description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
-				imageUrl: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
+				imageUrl: "",
+				imagePublicId: "",
 				keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
 				featured: false,
 				inStock: true,
 			});
 		} catch (err: unknown) {
-			setError(err instanceof Error ? err.message : "Error creating product");
+			const msg = err instanceof Error ? err.message : "Error creating product";
+			setError(msg);
+			toast.error(msg, "Creation Failed");
 		} finally {
 			setIsSubmittingNew(false);
 		}
 	};
 
 	const handleOpenEditModal = (product: Product): void => {
+		const initialImg = product.images?.[0] || "";
+		setHasEditPendingPreview(false);
 		setEditProductForm({
 			id: product.id,
 			name: product.name,
@@ -373,7 +429,9 @@ export default function AdminProductsPage(): React.JSX.Element {
 			size: product.size || "",
 			tagline: product.tagline || "",
 			description: product.description || "",
-			imageUrl: product.images?.[0] || "",
+			imageUrl: initialImg,
+			imagePublicId: "",
+			originalImageUrl: initialImg,
 			keyActives: product.formulation?.keyActives?.join(", ") || "",
 			nafdacRegNo: product.nafdacRegNo || "",
 			ritual: product.accordions?.ritual || "",
@@ -384,10 +442,42 @@ export default function AdminProductsPage(): React.JSX.Element {
 		setIsEditModalOpen(true);
 	};
 
+	const handleCancelEditModal = async (): Promise<void> => {
+		// If a brand-new image was uploaded during this edit session and user cancels, delete the uncommitted new image
+		if (
+			editProductForm.imageUrl &&
+			editProductForm.imageUrl !== editProductForm.originalImageUrl
+		) {
+			await fetch("/api/images", {
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					publicId: editProductForm.imagePublicId,
+					imageUrl: editProductForm.imageUrl,
+				}),
+			}).catch(() => {});
+		}
+		setHasEditPendingPreview(false);
+		setIsEditModalOpen(false);
+	};
+
 	const handleSaveEdit = async (e: React.FormEvent): Promise<void> => {
 		e.preventDefault();
+		if (hasEditPendingPreview) {
+			toast.warning(
+				"Please click 'Confirm & Upload' on your selected image preview before saving changes.",
+				"Unconfirmed Image Preview"
+			);
+			return;
+		}
+
 		if (!editProductForm.name.trim()) {
 			setError("Formulation name is required.");
+			return;
+		}
+
+		if (!editProductForm.imageUrl.trim()) {
+			toast.error("Please upload and confirm a product image before saving.", "Image Required");
 			return;
 		}
 
@@ -449,10 +539,13 @@ export default function AdminProductsPage(): React.JSX.Element {
 				...prev,
 				[updated.id]: String(updated.price),
 			}));
+			setHasEditPendingPreview(false);
 			setIsEditModalOpen(false);
 			setSuccessMsg(`Successfully updated "${updated.name}"!`);
 		} catch (err: unknown) {
-			setError(err instanceof Error ? err.message : "Error updating formulation");
+			const msg = err instanceof Error ? err.message : "Error updating formulation";
+			setError(msg);
+			toast.error(msg, "Update Failed");
 		} finally {
 			setIsSubmittingEdit(false);
 		}
@@ -803,7 +896,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 			{/* Modal: Add New Formulation */}
 			{isAddModalOpen && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 overflow-y-auto">
-					<div className="w-full max-w-xl rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
+					<div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
 						<div className="flex items-center justify-between border-b border-border-delicate pb-4">
 							<div className="flex items-center gap-2">
 								<Sparkles className="h-5 w-5 text-secondary-dark" />
@@ -813,7 +906,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							</div>
 							<button
 								type="button"
-								onClick={() => setIsAddModalOpen(false)}
+								onClick={() => void handleCancelAddModal()}
 								className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low"
 							>
 								<X className="h-5 w-5" />
@@ -911,20 +1004,25 @@ export default function AdminProductsPage(): React.JSX.Element {
 								</div>
 							</div>
 
-							<div>
-								<label className="block font-semibold uppercase tracking-wider text-primary">
-									Image URL (High-Res)
-								</label>
-								<input
-									type="url"
-									placeholder="https://images.unsplash.com/..."
-									value={newProductForm.imageUrl}
-									onChange={(e) =>
-										setNewProductForm({ ...newProductForm, imageUrl: e.target.value })
-									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-								/>
-							</div>
+							<ProductImageUploader
+								currentImageUrl={newProductForm.imageUrl}
+								currentPublicId={newProductForm.imagePublicId}
+								onImageUploaded={(url, publicId) =>
+									setNewProductForm((prev) => ({
+										...prev,
+										imageUrl: url,
+										imagePublicId: publicId,
+									}))
+								}
+								onImageRemoved={() =>
+									setNewProductForm((prev) => ({
+										...prev,
+										imageUrl: "",
+										imagePublicId: "",
+									}))
+								}
+								onPendingPreviewChange={setHasAddPendingPreview}
+							/>
 
 							<div>
 								<label className="block font-semibold uppercase tracking-wider text-primary">
@@ -996,7 +1094,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							<div className="flex items-center justify-end gap-3 pt-4 border-t border-border-delicate">
 								<button
 									type="button"
-									onClick={() => setIsAddModalOpen(false)}
+									onClick={() => void handleCancelAddModal()}
 									className="rounded-full border border-border-delicate px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-primary"
 								>
 									Cancel
@@ -1032,7 +1130,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							</div>
 							<button
 								type="button"
-								onClick={() => setIsEditModalOpen(false)}
+								onClick={() => void handleCancelEditModal()}
 								className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low"
 							>
 								<X className="h-5 w-5" />
@@ -1144,19 +1242,25 @@ export default function AdminProductsPage(): React.JSX.Element {
 								/>
 							</div>
 
-							<div>
-								<label className="block font-semibold uppercase tracking-wider text-primary">
-									Image URL (High-Res)
-								</label>
-								<input
-									type="url"
-									value={editProductForm.imageUrl}
-									onChange={(e) =>
-										setEditProductForm({ ...editProductForm, imageUrl: e.target.value })
-									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-								/>
-							</div>
+							<ProductImageUploader
+								currentImageUrl={editProductForm.imageUrl}
+								currentPublicId={editProductForm.imagePublicId}
+								onImageUploaded={(url, publicId) =>
+									setEditProductForm((prev) => ({
+										...prev,
+										imageUrl: url,
+										imagePublicId: publicId,
+									}))
+								}
+								onImageRemoved={() =>
+									setEditProductForm((prev) => ({
+										...prev,
+										imageUrl: "",
+										imagePublicId: "",
+									}))
+								}
+								onPendingPreviewChange={setHasEditPendingPreview}
+							/>
 
 							<div className="grid grid-cols-2 gap-4">
 								<div>
@@ -1263,7 +1367,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 							<div className="flex items-center justify-end gap-3 pt-4 border-t border-border-delicate">
 								<button
 									type="button"
-									onClick={() => setIsEditModalOpen(false)}
+									onClick={() => void handleCancelEditModal()}
 									className="rounded-full border border-border-delicate px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-primary"
 								>
 									Cancel

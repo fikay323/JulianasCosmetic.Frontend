@@ -642,6 +642,54 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 		const successToast = page.locator("text=/Successfully updated/i").first();
 		await expect(successToast).toBeVisible();
 	});
+
+	test("Admin can preview image before uploading, confirm upload, and remove/delete uploaded image to upload a new one", async ({ page }) => {
+		await page.goto("/admin/products");
+		const productsTable = page.locator('[data-testid="products-table"]');
+		await expect(productsTable).toBeVisible({ timeout: 15000 });
+
+		// Open Add Formulation modal
+		const addNewBtn = page.locator('button:has-text("Add Formulation")').first();
+		await addNewBtn.click();
+
+		// Verify empty dropzone is shown initially
+		const dropzone = page.locator('[data-testid="select-image-dropzone"]');
+		await expect(dropzone).toBeVisible();
+
+		// 1. Select an image file from device and verify Local Preview appears BEFORE uploading
+		const fileInput = page.locator('[data-testid="product-image-file-input"]');
+		const minimalPngBuffer = Buffer.from(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+			"base64"
+		);
+
+		await fileInput.setInputFiles({
+			name: "parisian-elixir.png",
+			mimeType: "image/png",
+			buffer: minimalPngBuffer,
+		});
+
+		const localPreviewCard = page.locator('[data-testid="image-local-preview-card"]');
+		await expect(localPreviewCard).toBeVisible();
+		await expect(localPreviewCard).toContainText("Preview — Confirm Before Uploading");
+		await expect(localPreviewCard).toContainText("parisian-elixir.png");
+
+		// 2. Click "Confirm & Upload" and verify it uploads to backend and transitions to Uploaded & Active state
+		const confirmUploadBtn = page.locator('[data-testid="confirm-upload-btn"]');
+		await confirmUploadBtn.click();
+
+		const uploadedCard = page.locator('[data-testid="uploaded-image-card"]');
+		await expect(uploadedCard).toBeVisible({ timeout: 10000 });
+		await expect(uploadedCard).toContainText("Uploaded & Active");
+
+		// 3. Click "Remove & Delete Image" so the uploaded image is deleted from storage and a new one can be uploaded
+		const removeBtn = page.locator('[data-testid="remove-uploaded-image-btn"]');
+		await expect(removeBtn).toBeVisible();
+		await removeBtn.click();
+
+		// Verify uploader resets to the file selection dropzone
+		await expect(dropzone).toBeVisible({ timeout: 10000 });
+	});
 });
 
 // =========================================================================

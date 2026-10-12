@@ -295,6 +295,32 @@ const server = http.createServer(async (req, res) => {
 		);
 	}
 
+	// 0.5 /api/images/upload & /api/images
+	if (pathname === "/api/images/upload" && req.method === "POST") {
+		// Consume multipart body
+		await new Promise((resolve) => {
+			req.on("data", () => {});
+			req.on("end", resolve);
+		});
+		const idSuffix = Date.now().toString().slice(-6);
+		const publicId = `julianas-cosmetics/products/formulation-${idSuffix}`;
+		const url = `https://res.cloudinary.com/demo/image/upload/v1728770000/${publicId}.png`;
+		res.writeHead(200, { "Content-Type": "application/json" });
+		return res.end(JSON.stringify({ url, publicId }));
+	}
+
+	if (pathname === "/api/images" && req.method === "DELETE") {
+		const body = await parseBody(req);
+		res.writeHead(200, { "Content-Type": "application/json" });
+		return res.end(
+			JSON.stringify({
+				success: true,
+				deleted: true,
+				publicId: body.publicId || url.searchParams.get("publicId") || "",
+			})
+		);
+	}
+
 	// 1. /api/products
 	if (pathname === "/api/products") {
 		if (req.method === "GET") {
