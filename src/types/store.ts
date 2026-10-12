@@ -107,6 +107,23 @@ export interface UpdateProductDto {
 	price?: number;
 	stockStatus?: "In Stock" | "Out of Stock";
 	inStock?: boolean;
+	featured?: boolean;
+}
+
+export interface CreateProductDto {
+	name: string;
+	tagline?: string;
+	price: number;
+	category: ProductCategory;
+	size?: string;
+	stockStatus?: "In Stock" | "Out of Stock";
+	inStock?: boolean;
+	featured?: boolean;
+	images?: string[];
+	description?: string;
+	nafdacRegNo?: string;
+	formulation?: Partial<FormulationSpecs>;
+	accordions?: Partial<ProductAccordions>;
 }
 
 export interface AdminStats {

@@ -50,6 +50,17 @@ test.afterAll(async () => {
 	}
 });
 
+test.beforeEach(async ({ context }) => {
+	await context.addCookies([
+		{
+			name: "jc_admin_auth",
+			value: "authenticated",
+			domain: "localhost",
+			path: "/",
+		},
+	]);
+});
+
 /**
  * Type contracts for test assertions
  */
@@ -469,6 +480,30 @@ test.describe("Tier 2: Boundary & Corner Cases", () => {
 		expect(deliveryText).not.toContain("Delivery: ₦1,500");
 		expect(deliveryText).not.toContain("Delivery: ₦2,000");
 	});
+
+	test("Admin portal protects routes from unauthorized visitors and requires valid passkey", async ({ browser }) => {
+		const freshContext = await browser.newContext();
+		const page = await freshContext.newPage();
+		await page.goto("/admin/products");
+
+		// Verify passkey lock screen is presented
+		await expect(page.locator("text=/Restricted Access/i").first()).toBeVisible();
+		const passkeyInput = page.locator('#admin-passkey');
+		await expect(passkeyInput).toBeVisible();
+
+		// Enter invalid passkey
+		await passkeyInput.fill("wrongpass");
+		await page.click('button[type="submit"]');
+		await expect(page.locator("text=/Incorrect administrative passkey/i")).toBeVisible();
+
+		// Enter correct passkey
+		await passkeyInput.fill("julianas2026");
+		await page.click('button[type="submit"]');
+
+		// Assert products table unlocks
+		await expect(page.locator('[data-testid="products-table"]')).toBeVisible({ timeout: 15000 });
+		await freshContext.close();
+	});
 });
 
 // =========================================================================
@@ -545,6 +580,24 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 		if (await addBtn.isVisible()) {
 			await expect(addBtn).toBeDisabled();
 		}
+	});
+
+	test("Admin can toggle Featured on Homepage and it updates the product status", async ({ page }) => {
+		await page.goto("/admin/products");
+		const productsTable = page.locator('[data-testid="products-table"]');
+		await expect(productsTable).toBeVisible({ timeout: 15000 });
+
+		const productRow = page.locator('tr[data-testid="product-row"]').first();
+		const featuredBtn = productRow.locator('button:has-text("Featured"), button:has-text("Not Featured")').first();
+		await expect(featuredBtn).toBeVisible();
+		const initialText = await featuredBtn.innerText();
+
+		await featuredBtn.click();
+		await page.waitForTimeout(500);
+
+		// Assert button text toggled
+		const expectedNext = initialText.includes("Not Featured") ? "Featured" : "Not Featured";
+		await expect(featuredBtn).toContainText(expectedNext);
 	});
 });
 
