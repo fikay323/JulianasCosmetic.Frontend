@@ -67,7 +67,7 @@ export function RoutineConsultation(): React.JSX.Element {
 
 					<div className="pt-6 flex flex-wrap items-center justify-center gap-4">
 						<a
-							href="https://wa.me/2348000000000?text=Hello%20Juliana's%20Cosmetics%2C%20I%20would%20like%20a%20skincare%20routine%20consultation."
+							href="https://wa.me/2347043726428?text=Hello%20Juliana's%20Cosmetics%2C%20I%20would%20like%20a%20skincare%20routine%20consultation."
 							target="_blank"
 							rel="noopener noreferrer"
 							className="inline-flex items-center gap-2 rounded-full bg-secondary px-8 py-4 text-xs font-bold uppercase tracking-[0.14em] text-primary shadow-lg transition-all hover:bg-secondary-container active:scale-95"

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const ORDERS_FILE_PATH = "src/data/orders.json";
 const PRODUCTS_FILE_PATH = "src/data/products.json";
-const STORE_CONCIERGE_PHONE = process.env.NEXT_PUBLIC_CONCIERGE_PHONE || "2348000000000";
+const STORE_CONCIERGE_PHONE = process.env.NEXT_PUBLIC_CONCIERGE_PHONE || "2347043726428";
 
 interface RequestItemPayload {
 	productId?: string;

@@ -33,7 +33,7 @@ export function buildWhatsAppUrl(
 	subtotal: number,
 	orderNumber?: string
 ): string {
-	const recipientPhone = sanitizePhoneNumber(phone) || "2348000000000";
+	const recipientPhone = sanitizePhoneNumber(phone) || process.env.NEXT_PUBLIC_CONCIERGE_PHONE || "2347043726428";
 
 	const orderRefLine = orderNumber ? `*Order Ref:* #${orderNumber}\n*Status:* Awaiting Delivery Agreement\n\n` : "";
 
