@@ -599,6 +599,38 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 		const expectedNext = initialText.includes("Not Featured") ? "Featured" : "Not Featured";
 		await expect(featuredBtn).toContainText(expectedNext);
 	});
+
+	test("Admin can edit description and formulation properties of existing product via Edit modal", async ({ page }) => {
+		await page.goto("/admin/products");
+		const productsTable = page.locator('[data-testid="products-table"]');
+		await expect(productsTable).toBeVisible({ timeout: 15000 });
+
+		const productRow = page.locator('tr[data-testid="product-row"]').first();
+		const editBtn = productRow.locator('button:has-text("Edit"), button[aria-label*="Edit" i]').first();
+		await expect(editBtn).toBeVisible();
+
+		// Open edit modal
+		await editBtn.click();
+
+		// Assert modal is open
+		const modalHeader = page.locator("text=/Edit Formulation Properties/i").first();
+		await expect(modalHeader).toBeVisible();
+
+		// Edit description
+		const descTextarea = page.locator("textarea").first();
+		await expect(descTextarea).toBeVisible();
+		const testDescription = "Updated Parisian botanical elixir with refined French plant peptides and antioxidant protection.";
+		await descTextarea.fill(testDescription);
+
+		// Submit modal
+		const saveBtn = page.locator('button:has-text("Save Changes")').first();
+		await saveBtn.click();
+
+		// Assert modal closes and success toast appears
+		await expect(modalHeader).not.toBeVisible({ timeout: 5000 });
+		const successToast = page.locator("text=/Successfully updated/i").first();
+		await expect(successToast).toBeVisible();
+	});
 });
 
 // =========================================================================

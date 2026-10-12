@@ -137,7 +137,22 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 			body = {};
 		}
 
-		const { id, price, stockStatus, inStock, featured } = body;
+		const {
+			id,
+			name,
+			tagline,
+			description,
+			category,
+			price,
+			size,
+			stockStatus,
+			inStock,
+			featured,
+			images,
+			nafdacRegNo,
+			formulation,
+			accordions,
+		} = body;
 
 		if (!id) {
 			return NextResponse.json(
@@ -164,8 +179,28 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 		const existing = products[productIndex];
 		const updatedProduct: Product = { ...existing };
 
+		if (name !== undefined && name.trim()) {
+			updatedProduct.name = name.trim();
+		}
+
+		if (tagline !== undefined) {
+			updatedProduct.tagline = tagline.trim();
+		}
+
+		if (description !== undefined) {
+			updatedProduct.description = description.trim();
+		}
+
+		if (category !== undefined) {
+			updatedProduct.category = category;
+		}
+
 		if (price !== undefined) {
 			updatedProduct.price = Number(price);
+		}
+
+		if (size !== undefined) {
+			updatedProduct.size = size.trim();
 		}
 
 		if (stockStatus !== undefined) {
@@ -178,6 +213,29 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
 		if (featured !== undefined) {
 			updatedProduct.featured = Boolean(featured);
+		}
+
+		if (images !== undefined && images.length > 0) {
+			updatedProduct.images = images;
+		}
+
+		if (nafdacRegNo !== undefined) {
+			updatedProduct.nafdacRegNo = nafdacRegNo.trim();
+		}
+
+		if (formulation !== undefined) {
+			updatedProduct.formulation = {
+				...existing.formulation,
+				...formulation,
+				keyActives: formulation.keyActives || existing.formulation?.keyActives || [],
+			};
+		}
+
+		if (accordions !== undefined) {
+			updatedProduct.accordions = {
+				...existing.accordions,
+				...accordions,
+			};
 		}
 
 		products[productIndex] = updatedProduct;

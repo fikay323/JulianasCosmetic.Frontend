@@ -104,10 +104,19 @@ export interface UpdateOrderDto {
 
 export interface UpdateProductDto {
 	id?: string;
+	name?: string;
+	tagline?: string;
+	description?: string;
+	category?: ProductCategory;
 	price?: number;
+	size?: string;
 	stockStatus?: "In Stock" | "Out of Stock";
 	inStock?: boolean;
 	featured?: boolean;
+	images?: string[];
+	nafdacRegNo?: string;
+	formulation?: Partial<FormulationSpecs>;
+	accordions?: Partial<ProductAccordions>;
 }
 
 export interface CreateProductDto {

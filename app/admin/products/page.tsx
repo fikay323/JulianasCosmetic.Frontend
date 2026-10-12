@@ -16,9 +16,10 @@ import {
 	Trash2,
 	X,
 	Sparkles,
+	Edit3,
 } from "lucide-react";
 import { formatNaira } from "@/src/lib/utils";
-import type { Product, ProductCategory, CreateProductDto } from "@/src/types/store";
+import type { Product, ProductCategory, CreateProductDto, UpdateProductDto } from "@/src/types/store";
 
 const CATEGORIES: ProductCategory[] = [
 	"Serums",
@@ -62,6 +63,41 @@ export default function AdminProductsPage(): React.JSX.Element {
 		description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
 		imageUrl: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
 		keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
+		featured: false,
+		inStock: true,
+	});
+
+	// Modal State for editing an existing product
+	const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+	const [isSubmittingEdit, setIsSubmittingEdit] = useState<boolean>(false);
+	const [editProductForm, setEditProductForm] = useState<{
+		id: string;
+		name: string;
+		category: ProductCategory;
+		price: string;
+		size: string;
+		tagline: string;
+		description: string;
+		imageUrl: string;
+		keyActives: string;
+		nafdacRegNo: string;
+		ritual: string;
+		inci: string;
+		featured: boolean;
+		inStock: boolean;
+	}>({
+		id: "",
+		name: "",
+		category: "Serums",
+		price: "",
+		size: "",
+		tagline: "",
+		description: "",
+		imageUrl: "",
+		keyActives: "",
+		nafdacRegNo: "",
+		ritual: "",
+		inci: "",
 		featured: false,
 		inStock: true,
 	});
@@ -321,6 +357,100 @@ export default function AdminProductsPage(): React.JSX.Element {
 			setError(err instanceof Error ? err.message : "Error creating product");
 		} finally {
 			setIsSubmittingNew(false);
+		}
+	};
+
+	const handleOpenEditModal = (product: Product): void => {
+		setEditProductForm({
+			id: product.id,
+			name: product.name,
+			category: product.category,
+			price: String(product.price),
+			size: product.size || "",
+			tagline: product.tagline || "",
+			description: product.description || "",
+			imageUrl: product.images?.[0] || "",
+			keyActives: product.formulation?.keyActives?.join(", ") || "",
+			nafdacRegNo: product.nafdacRegNo || "",
+			ritual: product.accordions?.ritual || "",
+			inci: product.accordions?.inci || "",
+			featured: Boolean(product.featured),
+			inStock: product.stockStatus === "In Stock" && product.inStock !== false,
+		});
+		setIsEditModalOpen(true);
+	};
+
+	const handleSaveEdit = async (e: React.FormEvent): Promise<void> => {
+		e.preventDefault();
+		if (!editProductForm.name.trim()) {
+			setError("Formulation name is required.");
+			return;
+		}
+
+		const priceNum = Number(editProductForm.price);
+		if (isNaN(priceNum) || priceNum <= 0) {
+			setError("Please enter a valid retail price in Naira.");
+			return;
+		}
+
+		setIsSubmittingEdit(true);
+		setError(null);
+
+		const activesList = editProductForm.keyActives
+			.split(",")
+			.map((s) => s.trim())
+			.filter(Boolean);
+
+		const payload: UpdateProductDto = {
+			id: editProductForm.id,
+			name: editProductForm.name.trim(),
+			category: editProductForm.category,
+			price: priceNum,
+			size: editProductForm.size.trim(),
+			tagline: editProductForm.tagline.trim(),
+			description: editProductForm.description.trim(),
+			images: editProductForm.imageUrl.trim() ? [editProductForm.imageUrl.trim()] : undefined,
+			featured: editProductForm.featured,
+			stockStatus: editProductForm.inStock ? "In Stock" : "Out of Stock",
+			inStock: editProductForm.inStock,
+			nafdacRegNo: editProductForm.nafdacRegNo.trim(),
+			formulation: {
+				keyActives: activesList,
+			},
+			accordions: {
+				ritual: editProductForm.ritual.trim(),
+				inci: editProductForm.inci.trim(),
+			},
+		};
+
+		try {
+			const res = await fetch("/api/products", {
+				method: "PATCH",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(payload),
+			});
+
+			if (!res.ok) {
+				const errData = (await res.json().catch(() => ({}))) as { error?: string };
+				throw new Error(errData.error || "Failed to update formulation");
+			}
+
+			const updated = (await res.json()) as Product;
+			setProducts((prev) =>
+				prev.map((p) => (p.id === updated.id ? updated : p))
+			);
+			setPriceInputs((prev) => ({
+				...prev,
+				[updated.id]: String(updated.price),
+			}));
+			setIsEditModalOpen(false);
+			setSuccessMsg(`Successfully updated "${updated.name}"!`);
+		} catch (err: unknown) {
+			setError(err instanceof Error ? err.message : "Error updating formulation");
+		} finally {
+			setIsSubmittingEdit(false);
 		}
 	};
 
@@ -611,9 +741,20 @@ export default function AdminProductsPage(): React.JSX.Element {
 													)}
 												</td>
 
-												{/* Stock Toggle & Delete */}
-												<td className="w-[8%] px-5 py-4 text-right whitespace-nowrap">
+												{/* Actions: Edit, Stock Toggle, Delete */}
+												<td className="w-[12%] px-5 py-4 text-right whitespace-nowrap">
 													<div className="flex items-center justify-end gap-1.5">
+														<button
+															type="button"
+															onClick={() => handleOpenEditModal(product)}
+															title={`Edit ${product.name}`}
+															aria-label={`Edit ${product.name}`}
+															className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2 py-1 text-[11px] font-medium text-primary hover:border-secondary hover:text-secondary-dark transition-all active:scale-95"
+														>
+															<Edit3 className="h-3 w-3" />
+															<span>Edit</span>
+														</button>
+
 														<button
 															type="button"
 															role="switch"
@@ -863,6 +1004,273 @@ export default function AdminProductsPage(): React.JSX.Element {
 									className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all disabled:opacity-50"
 								>
 									<span>{isSubmittingNew ? "Saving..." : "Create Formulation"}</span>
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			)}
+
+			{/* Modal: Edit Formulation Details */}
+			{isEditModalOpen && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 overflow-y-auto">
+					<div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
+						<div className="flex items-center justify-between border-b border-border-delicate pb-4">
+							<div className="flex items-center gap-2">
+								<Edit3 className="h-5 w-5 text-secondary-dark" />
+								<div>
+									<h2 className="font-serif text-xl font-medium text-primary">
+										Edit Formulation Properties
+									</h2>
+									<p className="text-[11px] text-on-surface-variant">
+										Modify description, bio-actives, pricing, and editorial specifications for {editProductForm.name}
+									</p>
+								</div>
+							</div>
+							<button
+								type="button"
+								onClick={() => setIsEditModalOpen(false)}
+								className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low"
+							>
+								<X className="h-5 w-5" />
+							</button>
+						</div>
+
+						<form onSubmit={handleSaveEdit} className="mt-6 space-y-4 text-xs">
+							<div>
+								<label className="block font-semibold uppercase tracking-wider text-primary">
+									Product Name *
+								</label>
+								<input
+									type="text"
+									required
+									value={editProductForm.name}
+									onChange={(e) =>
+										setEditProductForm({ ...editProductForm, name: e.target.value })
+									}
+									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+								/>
+							</div>
+
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										Category *
+									</label>
+									<select
+										value={editProductForm.category}
+										onChange={(e) =>
+											setEditProductForm({
+												...editProductForm,
+												category: e.target.value as ProductCategory,
+											})
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									>
+										{CATEGORIES.map((cat) => (
+											<option key={cat} value={cat}>
+												{cat}
+											</option>
+										))}
+									</select>
+								</div>
+
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										Price in Naira (₦) *
+									</label>
+									<input
+										type="number"
+										required
+										min="1000"
+										step="500"
+										value={editProductForm.price}
+										onChange={(e) =>
+											setEditProductForm({ ...editProductForm, price: e.target.value })
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									/>
+								</div>
+							</div>
+
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										Volume / Size
+									</label>
+									<input
+										type="text"
+										value={editProductForm.size}
+										onChange={(e) =>
+											setEditProductForm({ ...editProductForm, size: e.target.value })
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									/>
+								</div>
+
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										Tagline
+									</label>
+									<input
+										type="text"
+										value={editProductForm.tagline}
+										onChange={(e) =>
+											setEditProductForm({ ...editProductForm, tagline: e.target.value })
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									/>
+								</div>
+							</div>
+
+							<div>
+								<label className="block font-semibold uppercase tracking-wider text-primary">
+									Description *
+								</label>
+								<textarea
+									rows={4}
+									required
+									value={editProductForm.description}
+									onChange={(e) =>
+										setEditProductForm({
+											...editProductForm,
+											description: e.target.value,
+										})
+									}
+									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label className="block font-semibold uppercase tracking-wider text-primary">
+									Image URL (High-Res)
+								</label>
+								<input
+									type="url"
+									value={editProductForm.imageUrl}
+									onChange={(e) =>
+										setEditProductForm({ ...editProductForm, imageUrl: e.target.value })
+									}
+									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+								/>
+							</div>
+
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										Key Bio-Actives (Comma separated)
+									</label>
+									<input
+										type="text"
+										value={editProductForm.keyActives}
+										onChange={(e) =>
+											setEditProductForm({
+												...editProductForm,
+												keyActives: e.target.value,
+											})
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									/>
+								</div>
+
+								<div>
+									<label className="block font-semibold uppercase tracking-wider text-primary">
+										NAFDAC Registration No.
+									</label>
+									<input
+										type="text"
+										value={editProductForm.nafdacRegNo}
+										onChange={(e) =>
+											setEditProductForm({
+												...editProductForm,
+												nafdacRegNo: e.target.value,
+											})
+										}
+										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									/>
+								</div>
+							</div>
+
+							<div>
+								<label className="block font-semibold uppercase tracking-wider text-primary">
+									Application Ritual (Accordion)
+								</label>
+								<textarea
+									rows={2}
+									value={editProductForm.ritual}
+									onChange={(e) =>
+										setEditProductForm({
+											...editProductForm,
+											ritual: e.target.value,
+										})
+									}
+									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2 text-xs text-primary focus:border-primary focus:outline-none"
+								/>
+							</div>
+
+							<div>
+								<label className="block font-semibold uppercase tracking-wider text-primary">
+									INCI Full Ingredients List (Accordion)
+								</label>
+								<textarea
+									rows={2}
+									value={editProductForm.inci}
+									onChange={(e) =>
+										setEditProductForm({
+											...editProductForm,
+											inci: e.target.value,
+										})
+									}
+									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2 text-xs text-primary focus:border-primary focus:outline-none"
+								/>
+							</div>
+
+							<div className="flex items-center gap-6 pt-2">
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={editProductForm.featured}
+										onChange={(e) =>
+											setEditProductForm({
+												...editProductForm,
+												featured: e.target.checked,
+											})
+										}
+										className="h-4 w-4 rounded border-border-delicate text-primary focus:ring-primary"
+									/>
+									<span className="font-medium text-primary">Feature on Homepage</span>
+								</label>
+
+								<label className="flex items-center gap-2 cursor-pointer">
+									<input
+										type="checkbox"
+										checked={editProductForm.inStock}
+										onChange={(e) =>
+											setEditProductForm({
+												...editProductForm,
+												inStock: e.target.checked,
+											})
+										}
+										className="h-4 w-4 rounded border-border-delicate text-primary focus:ring-primary"
+									/>
+									<span className="font-medium text-primary">Immediate Stock Available</span>
+								</label>
+							</div>
+
+							<div className="flex items-center justify-end gap-3 pt-4 border-t border-border-delicate">
+								<button
+									type="button"
+									onClick={() => setIsEditModalOpen(false)}
+									className="rounded-full border border-border-delicate px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-primary"
+								>
+									Cancel
+								</button>
+								<button
+									type="submit"
+									disabled={isSubmittingEdit}
+									className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all disabled:opacity-50"
+								>
+									<span>{isSubmittingEdit ? "Saving..." : "Save Changes"}</span>
 								</button>
 							</div>
 						</form>
