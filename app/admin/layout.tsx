@@ -103,7 +103,7 @@ export default function AdminLayout({
 	const handleSignOut = async (): Promise<void> => {
 		try {
 			await fetch("/api/admin/auth", { method: "DELETE" });
-		} catch {}
+		} catch { }
 		if (typeof window !== "undefined") {
 			localStorage.removeItem("jc_admin_auth");
 		}
@@ -220,9 +220,6 @@ export default function AdminLayout({
 								<span className="font-serif text-xs sm:text-sm font-semibold text-primary">
 									Atelier Portal
 								</span>
-								<span className="rounded-full bg-secondary-fixed px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-on-secondary-fixed">
-									HQ Operations
-								</span>
 							</div>
 						</Link>
 
@@ -255,11 +252,10 @@ export default function AdminLayout({
 					>
 						<Link
 							href="/admin"
-							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${
-								pathname === "/admin"
+							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${pathname === "/admin"
 									? "bg-primary text-white shadow-xs"
 									: "text-on-surface-variant hover:bg-surface-card hover:text-primary"
-							}`}
+								}`}
 						>
 							<LayoutDashboard className="h-3.5 w-3.5 flex-shrink-0" />
 							<span>Dashboard</span>
@@ -267,11 +263,10 @@ export default function AdminLayout({
 
 						<Link
 							href="/admin/orders"
-							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${
-								pathname === "/admin/orders"
+							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${pathname === "/admin/orders"
 									? "bg-primary text-white shadow-xs"
 									: "text-on-surface-variant hover:bg-surface-card hover:text-primary"
-							}`}
+								}`}
 						>
 							<ShoppingBag className="h-3.5 w-3.5 flex-shrink-0" />
 							<span>Orders</span>
@@ -279,11 +274,10 @@ export default function AdminLayout({
 
 						<Link
 							href="/admin/products"
-							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${
-								pathname === "/admin/products"
+							className={`inline-flex flex-1 md:flex-initial items-center justify-center gap-1.5 whitespace-nowrap rounded-lg md:rounded-full px-2.5 py-2 md:px-4 md:py-1.5 text-[11px] sm:text-xs font-semibold transition-all ${pathname === "/admin/products"
 									? "bg-primary text-white shadow-xs"
 									: "text-on-surface-variant hover:bg-surface-card hover:text-primary"
-							}`}
+								}`}
 						>
 							<Package className="h-3.5 w-3.5 flex-shrink-0" />
 							<span>Catalog & Stock</span>
