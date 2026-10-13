@@ -41,6 +41,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 	const [togglingStockId, setTogglingStockId] = useState<string | null>(null);
 	const [togglingFeaturedId, setTogglingFeaturedId] = useState<string | null>(null);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
+	const [brokenImageIds, setBrokenImageIds] = useState<Record<string, boolean>>({});
 
 	// Modal State for adding a product
 	const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
@@ -561,7 +562,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 			: 0;
 
 	return (
-		<div className="min-h-screen bg-surface py-10 sm:py-14">
+		<div className="min-h-screen bg-surface py-8 sm:py-14">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				{/* Top Header & Actions */}
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border-delicate pb-6">
@@ -573,15 +574,15 @@ export default function AdminProductsPage(): React.JSX.Element {
 							<span>/</span>
 							<span className="text-secondary-dark">Products Management</span>
 						</div>
-						<h1 className="mt-2 font-serif text-3xl font-medium text-primary sm:text-4xl">
+						<h1 className="mt-2 font-serif text-2xl font-medium text-primary sm:text-4xl">
 							Botanical Catalog & Inventory
 						</h1>
-						<p className="mt-1 text-xs text-on-surface-variant">
+						<p className="mt-1 text-xs text-on-surface-variant leading-relaxed">
 							Add imported Parisian formulations, adjust prices in ₦, toggle stock availability, and select featured bestsellers.
 						</p>
 					</div>
 
-					<div className="flex items-center gap-3">
+					<div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
 						<button
 							type="button"
 							onClick={handleRefresh}
@@ -595,7 +596,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 						<button
 							type="button"
 							onClick={() => setIsAddModalOpen(true)}
-							className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all active:scale-95"
+							className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all active:scale-95"
 						>
 							<Plus className="h-4 w-4" />
 							<span>Add Formulation</span>
@@ -604,49 +605,49 @@ export default function AdminProductsPage(): React.JSX.Element {
 				</div>
 
 				{/* Inventory Metrics Strip */}
-				<div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-					<div className="rounded-2xl border border-border-delicate bg-surface-card p-5 shadow-sm">
-						<span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+				<div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">
+					<div className="rounded-2xl border border-border-delicate bg-surface-card p-4 sm:p-5 shadow-sm">
+						<span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
 							Total Catalog
 						</span>
-						<div className="mt-2 flex items-baseline gap-2">
-							<span className="font-serif text-2xl font-bold text-primary">
+						<div className="mt-2 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+							<span className="font-serif text-xl sm:text-2xl font-bold text-primary">
 								{products.length}
 							</span>
-							<span className="text-xs text-on-surface-variant">formulations</span>
+							<span className="text-[11px] sm:text-xs text-on-surface-variant">formulations</span>
 						</div>
 					</div>
 
-					<div className="rounded-2xl border border-border-delicate bg-surface-card p-5 shadow-sm">
-						<span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+					<div className="rounded-2xl border border-border-delicate bg-surface-card p-4 sm:p-5 shadow-sm">
+						<span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
 							In Stock
 						</span>
-						<div className="mt-2 flex items-baseline gap-2">
-							<span className="font-serif text-2xl font-bold text-secondary-dark">
+						<div className="mt-2 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+							<span className="font-serif text-xl sm:text-2xl font-bold text-secondary-dark">
 								{inStockCount}
 							</span>
-							<span className="text-xs text-on-surface-variant">available</span>
+							<span className="text-[11px] sm:text-xs text-on-surface-variant">available</span>
 						</div>
 					</div>
 
-					<div className="rounded-2xl border border-border-delicate bg-surface-card p-5 shadow-sm">
-						<span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+					<div className="rounded-2xl border border-border-delicate bg-surface-card p-4 sm:p-5 shadow-sm">
+						<span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
 							Featured on Home
 						</span>
-						<div className="mt-2 flex items-baseline gap-2">
-							<span className="font-serif text-2xl font-bold text-primary">
+						<div className="mt-2 flex flex-wrap items-baseline gap-1.5 sm:gap-2">
+							<span className="font-serif text-xl sm:text-2xl font-bold text-primary">
 								{featuredCount}
 							</span>
-							<span className="text-xs text-on-surface-variant">active</span>
+							<span className="text-[11px] sm:text-xs text-on-surface-variant">active</span>
 						</div>
 					</div>
 
-					<div className="rounded-2xl border border-border-delicate bg-surface-card p-5 shadow-sm">
-						<span className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+					<div className="rounded-2xl border border-border-delicate bg-surface-card p-4 sm:p-5 shadow-sm">
+						<span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
 							Average Price
 						</span>
 						<div className="mt-2 flex items-baseline gap-2">
-							<span className="font-serif text-2xl font-bold text-primary">
+							<span className="font-serif text-xl sm:text-2xl font-bold text-primary">
 								{formatNaira(avgPrice)}
 							</span>
 						</div>
@@ -678,8 +679,8 @@ export default function AdminProductsPage(): React.JSX.Element {
 					</div>
 				)}
 
-				{/* Products Catalog Table */}
-				<div className="mt-8 overflow-hidden rounded-2xl border border-border-delicate bg-surface-card shadow-sm">
+				{/* Products Catalog Table (Responsive Card List on Mobile, Full Table on Desktop) */}
+				<div className="mt-6 sm:mt-8 overflow-hidden rounded-2xl border border-border-delicate bg-surface-card shadow-sm">
 					{loading && products.length === 0 ? (
 						<div className="p-12 text-center">
 							<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -702,78 +703,94 @@ export default function AdminProductsPage(): React.JSX.Element {
 							</button>
 						</div>
 					) : (
-						<div className="overflow-x-auto">
-							{/* Header Strip */}
-							<div className="grid grid-cols-12 border-b border-border-delicate bg-surface-container-low/40 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant min-w-[950px]">
-								<div className="col-span-1">Thumbnail</div>
-								<div className="col-span-3">Formulation Name</div>
-								<div className="col-span-1">Category</div>
-								<div className="col-span-2">Featured on Home</div>
-								<div className="col-span-1">Price</div>
-								<div className="col-span-2">Edit Price</div>
-								<div className="col-span-1">Stock</div>
-								<div className="col-span-1 text-right">Actions</div>
-							</div>
-
-							<table data-testid="products-table" className="w-full text-left border-collapse min-w-[950px]">
-								<tbody className="divide-y divide-border-delicate text-xs text-primary">
+						<div className="lg:overflow-x-auto">
+							<table
+								data-testid="products-table"
+								className="block lg:table w-full text-left border-collapse"
+							>
+								<thead className="hidden lg:table-header-group border-b border-border-delicate bg-surface-container-low/50 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+									<tr className="lg:table-row">
+										<th className="py-4 pl-6 pr-3 whitespace-nowrap">Thumbnail</th>
+										<th className="px-4 py-4 whitespace-nowrap">Formulation Name</th>
+										<th className="px-4 py-4 whitespace-nowrap">Category</th>
+										<th className="px-4 py-4 whitespace-nowrap">Featured on Home</th>
+										<th className="px-4 py-4 whitespace-nowrap">Price</th>
+										<th className="px-4 py-4 whitespace-nowrap">Edit Price</th>
+										<th className="px-4 py-4 whitespace-nowrap">Stock</th>
+										<th className="py-4 pl-4 pr-6 text-right whitespace-nowrap">Actions</th>
+									</tr>
+								</thead>
+								<tbody className="block lg:table-row-group divide-y divide-border-delicate text-xs text-primary">
 									{products.map((product) => {
 										const isStockActive =
 											product.stockStatus === "In Stock" &&
 											product.inStock !== false;
-										const imageSrc =
-											product.images?.[0] ||
+										const fallbackImage =
 											"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=400&q=80";
+										const imageSrc = brokenImageIds[product.id]
+											? fallbackImage
+											: product.images?.[0] || fallbackImage;
 
 										return (
 											<tr
 												key={product.id}
 												data-testid="product-row"
-												className="hover:bg-surface-container-low/30 transition-colors"
+												className="grid grid-cols-[64px_1fr_auto] gap-x-3.5 gap-y-3 p-4 sm:p-5 lg:table-row lg:p-0 hover:bg-surface-container-low/30 transition-colors"
 											>
-												{/* Thumbnail */}
-												<td className="w-[8%] px-5 py-4">
-													<div className="relative h-14 w-14 overflow-hidden rounded-xl border border-border-delicate bg-surface-container-low">
+												{/* 1. Thumbnail */}
+												<td className="col-start-1 row-start-1 row-span-2 lg:table-cell lg:py-4 lg:pl-6 lg:pr-3 lg:align-middle">
+													<div className="relative h-16 w-16 lg:h-14 lg:w-14 overflow-hidden rounded-xl border border-border-delicate bg-surface-container-low shadow-2xs">
 														<Image
 															src={imageSrc}
 															alt={product.name}
 															fill
-															sizes="56px"
+															sizes="64px"
 															className="object-cover"
+															onError={() =>
+																setBrokenImageIds((prev) => ({
+																	...prev,
+																	[product.id]: true,
+																}))
+															}
 														/>
 													</div>
 												</td>
 
-												{/* Formulation Name */}
-												<td className="w-[24%] px-5 py-4">
-													<h3 className="font-serif text-sm font-semibold text-primary">
+												{/* 2. Formulation Name */}
+												<td className="col-start-2 col-span-2 row-start-1 self-end lg:table-cell lg:min-w-[200px] lg:px-4 lg:py-4 lg:align-middle">
+													<h3 className="font-serif text-base lg:text-sm font-semibold text-primary leading-snug">
 														{product.name}
 													</h3>
 												</td>
 
-												{/* Category */}
-												<td className="w-[12%] px-5 py-4">
-													<span className="rounded-full bg-surface-container-low px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-secondary-dark">
+												{/* 3. Category */}
+												<td className="col-start-2 row-start-2 self-start lg:table-cell lg:px-4 lg:py-4 lg:align-middle">
+													<span className="inline-block rounded-full bg-surface-container-low px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-secondary-dark">
 														{product.category}
 													</span>
 												</td>
 
-												{/* Featured on Home Toggle */}
-												<td className="w-[16%] px-5 py-4">
+												{/* 4. Featured on Home Toggle */}
+												<td className="col-start-1 col-span-3 row-start-4 flex items-center justify-between rounded-xl bg-surface-container-low/40 px-3 py-2 lg:table-cell lg:rounded-none lg:bg-transparent lg:px-4 lg:py-4 lg:align-middle">
+													<span className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Homepage Spotlight
+													</span>
 													<button
 														type="button"
 														onClick={() => void handleToggleFeatured(product)}
 														disabled={togglingFeaturedId === product.id}
-														className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 ${product.featured
+														className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 disabled:opacity-50 ${
+															product.featured
 																? "bg-secondary-fixed text-on-secondary-fixed border border-secondary"
 																: "bg-surface-container-low text-on-surface-variant border border-border-delicate hover:text-primary"
-															}`}
+														}`}
 													>
 														<Star
-															className={`h-3.5 w-3.5 ${product.featured
+															className={`h-3.5 w-3.5 ${
+																product.featured
 																	? "fill-secondary-dark text-secondary-dark"
 																	: "text-on-surface-variant"
-																}`}
+															}`}
 														/>
 														<span>
 															{togglingFeaturedId === product.id
@@ -785,15 +802,18 @@ export default function AdminProductsPage(): React.JSX.Element {
 													</button>
 												</td>
 
-												{/* Current Price */}
-												<td className="w-[10%] px-5 py-4">
+												{/* 5. Current Price */}
+												<td className="col-start-1 col-span-1 row-start-3 self-center pt-1 lg:table-cell lg:px-4 lg:py-4 lg:pt-4 lg:align-middle whitespace-nowrap">
+													<span className="block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Price
+													</span>
 													<span className="font-bold text-sm text-primary">
 														{formatNaira(product.price)}
 													</span>
 												</td>
 
-												{/* Inline Price Editor */}
-												<td className="w-[14%] px-5 py-4">
+												{/* 6. Inline Price Editor */}
+												<td className="col-start-2 col-span-2 row-start-3 self-center justify-self-end pt-1 lg:table-cell lg:px-4 lg:py-4 lg:pt-4 lg:align-middle">
 													<div className="flex items-center gap-1.5">
 														<input
 															type="number"
@@ -803,14 +823,14 @@ export default function AdminProductsPage(): React.JSX.Element {
 															onChange={(e) =>
 																handlePriceInputChange(product.id, e.target.value)
 															}
-															className="w-20 rounded-lg border border-border-delicate bg-surface-card px-2 py-1.5 text-xs text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+															className="w-24 sm:w-28 lg:w-24 rounded-lg border border-border-delicate bg-surface-card px-2.5 py-1.5 text-xs text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
 														/>
 														<button
 															type="button"
 															onClick={() => void handleSavePrice(product.id)}
 															disabled={savingPriceId === product.id}
 															aria-label={`Save price for ${product.name}`}
-															className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-container hover:text-primary active:scale-95 disabled:opacity-50"
+															className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-container hover:text-primary active:scale-95 disabled:opacity-50"
 														>
 															<Check className="h-3 w-3" />
 															<span>
@@ -820,32 +840,32 @@ export default function AdminProductsPage(): React.JSX.Element {
 													</div>
 												</td>
 
-												{/* Stock Status Badge */}
-												<td className="w-[8%] px-5 py-4 whitespace-nowrap">
+												{/* 7. Stock Status Badge */}
+												<td className="col-start-3 row-start-2 self-start justify-self-end whitespace-nowrap lg:table-cell lg:px-4 lg:py-4 lg:align-middle">
 													{isStockActive ? (
-														<span className="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/50 px-2 py-0.5 text-[10px] font-bold text-on-secondary-fixed">
+														<span className="inline-flex items-center gap-1 rounded-full bg-secondary-fixed/50 px-2.5 py-0.5 text-[10px] font-bold text-on-secondary-fixed">
 															<CheckCircle2 className="h-3 w-3 text-secondary-dark" />
 															<span>In Stock</span>
 														</span>
 													) : (
-														<span className="inline-flex items-center gap-1 rounded-full bg-error-container px-2 py-0.5 text-[10px] font-bold text-on-error-container">
+														<span className="inline-flex items-center gap-1 rounded-full bg-error-container px-2.5 py-0.5 text-[10px] font-bold text-on-error-container">
 															<XCircle className="h-3 w-3 text-error" />
 															<span>Out of Stock</span>
 														</span>
 													)}
 												</td>
 
-												{/* Actions: Edit, Stock Toggle, Delete */}
-												<td className="w-[12%] px-5 py-4 text-right whitespace-nowrap">
-													<div className="flex items-center justify-end gap-1.5">
+												{/* 8. Actions: Edit, Stock Toggle, Delete */}
+												<td className="col-start-1 col-span-3 row-start-5 border-t border-border-delicate/60 pt-3 lg:table-cell lg:border-0 lg:py-4 lg:pl-4 lg:pr-6 lg:text-right lg:align-middle whitespace-nowrap">
+													<div className="flex items-center justify-between gap-2 lg:justify-end lg:gap-1.5">
 														<button
 															type="button"
 															onClick={() => handleOpenEditModal(product)}
 															title={`Edit ${product.name}`}
 															aria-label={`Edit ${product.name}`}
-															className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2 py-1 text-[11px] font-medium text-primary hover:border-secondary hover:text-secondary-dark transition-all active:scale-95"
+															className="inline-flex flex-1 lg:flex-initial items-center justify-center gap-1.5 rounded-lg border border-border-delicate bg-surface-container-low px-3 py-2 lg:px-2.5 lg:py-1 text-xs lg:text-[11px] font-medium text-primary hover:border-secondary hover:text-secondary-dark transition-all active:scale-95"
 														>
-															<Edit3 className="h-3 w-3" />
+															<Edit3 className="h-3.5 w-3.5 lg:h-3 lg:w-3" />
 															<span>Edit</span>
 														</button>
 
@@ -855,10 +875,11 @@ export default function AdminProductsPage(): React.JSX.Element {
 															aria-checked={isStockActive}
 															onClick={() => void handleToggleStock(product)}
 															disabled={togglingStockId === product.id}
-															className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-all active:scale-95 disabled:opacity-50 ${isStockActive
+															className={`inline-flex flex-1 lg:flex-initial items-center justify-center rounded-lg border px-3 py-2 lg:px-2.5 lg:py-1 text-xs lg:text-[11px] font-medium transition-all active:scale-95 disabled:opacity-50 ${
+																isStockActive
 																	? "border-border-delicate bg-surface-container-low text-primary hover:border-error hover:text-error"
 																	: "border-primary bg-primary text-white hover:bg-primary/90"
-																}`}
+															}`}
 														>
 															<span>
 																{togglingStockId === product.id
@@ -874,9 +895,9 @@ export default function AdminProductsPage(): React.JSX.Element {
 															onClick={() => void handleDeleteProduct(product)}
 															disabled={deletingId === product.id}
 															title={`Delete ${product.name}`}
-															className="inline-flex items-center rounded-lg p-1 text-on-surface-variant hover:bg-error-container hover:text-error transition-colors"
+															className="inline-flex items-center justify-center rounded-lg border border-transparent p-2 lg:p-1.5 text-on-surface-variant hover:border-error/20 hover:bg-error-container hover:text-error transition-colors"
 														>
-															<Trash2 className="h-3.5 w-3.5" />
+															<Trash2 className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
 														</button>
 													</div>
 												</td>
@@ -927,7 +948,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 								/>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block font-semibold uppercase tracking-wider text-primary">
 										Category *
@@ -969,7 +990,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 								</div>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block font-semibold uppercase tracking-wider text-primary">
 										Volume / Size
@@ -1150,7 +1171,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 								/>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block font-semibold uppercase tracking-wider text-primary">
 										Category *
@@ -1191,7 +1212,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 								</div>
 							</div>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block font-semibold uppercase tracking-wider text-primary">
 										Volume / Size
@@ -1260,7 +1281,7 @@ export default function AdminProductsPage(): React.JSX.Element {
 								onPendingPreviewChange={setHasEditPendingPreview}
 							/>
 
-							<div className="grid grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div>
 									<label className="block font-semibold uppercase tracking-wider text-primary">
 										Key Bio-Actives (Comma separated)

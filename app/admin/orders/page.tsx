@@ -208,7 +208,7 @@ export default function AdminOrdersPage(): React.JSX.Element {
 	};
 
 	return (
-		<div className="min-h-screen bg-surface py-10 sm:py-14">
+		<div className="min-h-screen bg-surface py-8 sm:py-14">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				{/* Top Navigation & Breadcrumbs */}
 				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border-delicate pb-6">
@@ -220,15 +220,15 @@ export default function AdminOrdersPage(): React.JSX.Element {
 							<span>/</span>
 							<span className="text-secondary-dark">Orders Management</span>
 						</div>
-						<h1 className="mt-2 font-serif text-3xl font-medium text-primary sm:text-4xl">
+						<h1 className="mt-2 font-serif text-2xl font-medium text-primary sm:text-4xl">
 							Concierge Orders Registry
 						</h1>
-						<p className="mt-1 text-xs text-on-surface-variant">
+						<p className="mt-1 text-xs text-on-surface-variant leading-relaxed">
 							Review customer concierge requests, agree delivery fees in ₦, and progress orders to Paid & Dispatched.
 						</p>
 					</div>
 
-					<div className="flex items-center gap-3">
+					<div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
 						<button
 							type="button"
 							onClick={handleRefresh}
@@ -257,7 +257,7 @@ export default function AdminOrdersPage(): React.JSX.Element {
 				)}
 
 				{/* Main Content / Table */}
-				<div className="mt-8 overflow-hidden rounded-2xl border border-border-delicate bg-surface-card shadow-sm">
+				<div className="mt-6 sm:mt-8 overflow-hidden rounded-2xl border border-border-delicate bg-surface-card shadow-sm">
 					{loading && orders.length === 0 ? (
 						<div className="p-12 text-center">
 							<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -275,22 +275,25 @@ export default function AdminOrdersPage(): React.JSX.Element {
 							</p>
 						</div>
 					) : (
-						<div className="overflow-x-auto">
-							<table data-testid="orders-table" className="w-full text-left border-collapse">
-								<thead>
-									<tr className="border-b border-border-delicate bg-surface-container-low/40 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
-										<th className="px-5 py-4">Order Ref</th>
-										<th className="px-5 py-4">Customer & Phone</th>
-										<th className="px-5 py-4">Destination</th>
-										<th className="px-5 py-4">Items</th>
-										<th className="px-5 py-4">Subtotal</th>
-										<th className="px-5 py-4">Delivery Fee (₦)</th>
-										<th className="px-5 py-4">Total</th>
-										<th className="px-5 py-4">Status</th>
-										<th className="px-5 py-4 text-right">Actions</th>
+						<div className="lg:overflow-x-auto">
+							<table
+								data-testid="orders-table"
+								className="block lg:table w-full text-left border-collapse"
+							>
+								<thead className="hidden lg:table-header-group border-b border-border-delicate bg-surface-container-low/40 text-[11px] font-semibold uppercase tracking-[0.12em] text-on-surface-variant">
+									<tr className="lg:table-row">
+										<th className="px-5 py-4 whitespace-nowrap">Order Ref</th>
+										<th className="px-5 py-4 whitespace-nowrap">Customer & Phone</th>
+										<th className="px-5 py-4 whitespace-nowrap">Destination</th>
+										<th className="px-5 py-4 whitespace-nowrap">Items</th>
+										<th className="px-5 py-4 whitespace-nowrap">Subtotal</th>
+										<th className="px-5 py-4 whitespace-nowrap">Delivery Fee (₦)</th>
+										<th className="px-5 py-4 whitespace-nowrap">Total</th>
+										<th className="px-5 py-4 whitespace-nowrap">Status</th>
+										<th className="px-5 py-4 text-right whitespace-nowrap">Actions</th>
 									</tr>
 								</thead>
-								<tbody className="divide-y divide-border-delicate text-xs text-primary">
+								<tbody className="block lg:table-row-group divide-y divide-border-delicate text-xs text-primary">
 									{orders.map((order) => {
 										const currentFeeInput =
 											feeInputs[order.id] ??
@@ -304,18 +307,21 @@ export default function AdminOrdersPage(): React.JSX.Element {
 											<tr
 												key={order.id}
 												data-testid="order-row"
-												className="hover:bg-surface-container-low/30 transition-colors"
+												className="grid grid-cols-2 gap-x-4 gap-y-3 p-4 sm:p-5 lg:table-row lg:p-0 hover:bg-surface-container-low/30 transition-colors"
 											>
-												{/* Order Ref */}
-												<td className="px-5 py-4 font-mono font-bold text-primary">
+												{/* 1. Order Ref */}
+												<td className="col-start-1 row-start-1 self-center lg:table-cell lg:px-5 lg:py-4 font-mono font-bold text-primary">
 													#{order.orderNumber}
 													<span className="block text-[10px] font-sans text-on-surface-variant font-normal">
 														{new Date(order.createdAt).toLocaleDateString()}
 													</span>
 												</td>
 
-												{/* Customer & Phone */}
-												<td className="px-5 py-4">
+												{/* 2. Customer & Phone */}
+												<td className="col-start-1 row-start-2 lg:table-cell lg:px-5 lg:py-4">
+													<span className="block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Client
+													</span>
 													<div className="font-semibold text-primary">
 														{order.customer.fullName}
 													</div>
@@ -333,12 +339,15 @@ export default function AdminOrdersPage(): React.JSX.Element {
 													</a>
 												</td>
 
-												{/* Destination */}
-												<td className="px-5 py-4">
+												{/* 3. Destination */}
+												<td className="col-start-2 row-start-2 lg:table-cell lg:px-5 lg:py-4">
+													<span className="block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Destination
+													</span>
 													<div className="font-medium text-primary">
 														{order.customer.cityLga}, {order.customer.state}
 													</div>
-													<div className="text-[10px] text-on-surface-variant line-clamp-1 max-w-[180px]" title={order.customer.address}>
+													<div className="text-[10px] text-on-surface-variant line-clamp-2 lg:line-clamp-1 lg:max-w-[180px]" title={order.customer.address}>
 														{order.customer.address}
 													</div>
 													{order.customer.courierNotes && (
@@ -348,68 +357,79 @@ export default function AdminOrdersPage(): React.JSX.Element {
 													)}
 												</td>
 
-												{/* Items Count & Names */}
-												<td className="px-5 py-4">
+												{/* 4. Items Count & Names */}
+												<td className="col-span-2 row-start-3 rounded-xl bg-surface-container-low/40 px-3 py-2 lg:table-cell lg:rounded-none lg:bg-transparent lg:px-5 lg:py-4">
 													<span className="font-semibold text-primary">
 														{totalItemsCount} {totalItemsCount === 1 ? "item" : "items"}
 													</span>
-													<div className="text-[10px] text-on-surface-variant line-clamp-1 max-w-[150px]">
+													<div className="text-[11px] lg:text-[10px] text-on-surface-variant lg:line-clamp-1 lg:max-w-[150px]">
 														{order.items.map((i) => `${i.productName} (x${i.quantity})`).join(", ")}
 													</div>
 												</td>
 
-												{/* Subtotal */}
-												<td className="px-5 py-4 font-medium text-primary">
+												{/* 5. Subtotal */}
+												<td className="col-start-1 row-start-4 lg:table-cell lg:px-5 lg:py-4 font-medium text-primary">
+													<span className="block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Subtotal
+													</span>
 													{formatNaira(order.subtotal)}
 												</td>
 
-												{/* Agreed Delivery Fee Input */}
-												<td className="px-5 py-4">
-													<div className="flex items-center gap-1.5">
-														<input
-															type="number"
-															name="deliveryFee"
-															placeholder="Fee in ₦"
-															value={currentFeeInput}
-															onChange={(e) => handleFeeInputChange(order.id, e.target.value)}
-															className="w-24 rounded-lg border border-border-delicate bg-surface-card px-2.5 py-1.5 text-xs text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-														/>
-														<button
-															type="button"
-															onClick={() => void handleSaveDeliveryFee(order.id)}
-															disabled={savingFeeId === order.id}
-															className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-container hover:text-primary active:scale-95 disabled:opacity-50"
-															aria-label="Save delivery fee"
-														>
-															<Check className="h-3 w-3" />
-															<span>{savingFeeId === order.id ? "..." : "Save"}</span>
-														</button>
+												{/* 6. Agreed Delivery Fee Input */}
+												<td className="col-span-2 row-start-5 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border-delicate/60 bg-surface-container-low/30 px-3 py-2.5 lg:table-cell lg:rounded-none lg:border-0 lg:bg-transparent lg:px-5 lg:py-4">
+													<span className="text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Delivery Fee (₦)
+													</span>
+													<div>
+														<div className="flex items-center gap-1.5">
+															<input
+																type="number"
+																name="deliveryFee"
+																placeholder="Fee in ₦"
+																value={currentFeeInput}
+																onChange={(e) => handleFeeInputChange(order.id, e.target.value)}
+																className="w-24 rounded-lg border border-border-delicate bg-surface-card px-2.5 py-1.5 text-xs text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+															/>
+															<button
+																type="button"
+																onClick={() => void handleSaveDeliveryFee(order.id)}
+																disabled={savingFeeId === order.id}
+																className="inline-flex items-center gap-1 rounded-lg border border-border-delicate bg-surface-container-low px-2.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-surface-container hover:text-primary active:scale-95 disabled:opacity-50"
+																aria-label="Save delivery fee"
+															>
+																<Check className="h-3 w-3" />
+																<span>{savingFeeId === order.id ? "..." : "Save"}</span>
+															</button>
+														</div>
+														{order.agreedDeliveryFee !== null && order.agreedDeliveryFee !== undefined && (
+															<span className="mt-1 block text-[10px] text-secondary-dark font-medium">
+																Agreed: {formatNaira(order.agreedDeliveryFee)}
+															</span>
+														)}
 													</div>
-													{order.agreedDeliveryFee !== null && order.agreedDeliveryFee !== undefined && (
-														<span className="mt-1 block text-[10px] text-secondary-dark font-medium">
-															Agreed: {formatNaira(order.agreedDeliveryFee)}
-														</span>
-													)}
 												</td>
 
-												{/* Total */}
-												<td className="px-5 py-4 font-bold text-primary">
+												{/* 7. Total */}
+												<td className="col-start-2 row-start-4 text-right lg:text-left lg:table-cell lg:px-5 lg:py-4 font-bold text-primary">
+													<span className="block text-[10px] font-semibold uppercase tracking-wider text-on-surface-variant lg:hidden">
+														Order Total
+													</span>
 													{formatNaira(order.total || order.subtotal)}
 												</td>
 
-												{/* Status Chip */}
-												<td className="px-5 py-4 whitespace-nowrap">
+												{/* 8. Status Chip */}
+												<td className="col-start-2 row-start-1 self-center justify-self-end whitespace-nowrap lg:table-cell lg:px-5 lg:py-4">
 													{getStatusChip(order.status)}
 												</td>
 
-												{/* Actions */}
-												<td className="px-5 py-4 text-right whitespace-nowrap">
+												{/* 9. Actions */}
+												<td className="col-span-2 row-start-6 border-t border-border-delicate/60 pt-3 text-right whitespace-nowrap lg:table-cell lg:border-0 lg:px-5 lg:py-4">
 													{!isPaid ? (
 														<button
 															type="button"
 															onClick={() => void handleMarkAsPaid(order.id)}
 															disabled={markingPaidId === order.id}
-															className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95 shadow-xs"
+															className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 lg:px-3 lg:py-1.5 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95 shadow-xs"
 														>
 															<CheckCircle2 className="h-3.5 w-3.5 text-secondary-dim" />
 															<span>

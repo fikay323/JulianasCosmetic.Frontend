@@ -525,7 +525,7 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 	test("Modifying price in /admin/products reflects on storefront catalog and cart calculation", async ({ page }) => {
 		// Navigate to admin products
 		await page.goto("/admin/products");
-		const productRow = page.locator('tr, [data-testid="product-row"]').first();
+		const productRow = page.locator('tr[data-testid="product-row"]').first();
 		await expect(productRow).toBeVisible({ timeout: 15000 });
 
 		// Read product name to track
@@ -563,7 +563,7 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 	test("Marking product Out of Stock in admin disables purchase / shows Out of Stock badge", async ({ page }) => {
 		// Navigate to admin products
 		await page.goto("/admin/products");
-		const productRow = page.locator('tr, [data-testid="product-row"]').first();
+		const productRow = page.locator('tr[data-testid="product-row"]').first();
 		await expect(productRow).toBeVisible({ timeout: 15000 });
 
 		const productNameEl = productRow.locator("td, h3, div").filter({ hasText: /Serum|Crème|Fluid|Oil|Cleanser/i }).first();
@@ -689,6 +689,28 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 
 		// Verify uploader resets to the file selection dropzone
 		await expect(dropzone).toBeVisible({ timeout: 10000 });
+	});
+
+	test("Admin Navigation Bar and Products table render cleanly on mobile viewport without horizontal overflow", async ({ page }) => {
+		await page.setViewportSize({ width: 375, height: 812 });
+		await page.goto("/admin/products");
+
+		const adminNav = page.locator('nav[aria-label="Admin Navigation"]');
+		await expect(adminNav).toBeVisible({ timeout: 15000 });
+
+		const productsTable = page.locator('[data-testid="products-table"]');
+		await expect(productsTable).toBeVisible();
+
+		// Verify neither the admin navigation nor the products table overflows the 375px mobile viewport
+		const navBox = await adminNav.boundingBox();
+		expect(navBox).not.toBeNull();
+		expect(navBox!.width).toBeLessThanOrEqual(375);
+
+		const firstRow = page.locator('tr[data-testid="product-row"]').first();
+		await expect(firstRow).toBeVisible();
+		const rowBox = await firstRow.boundingBox();
+		expect(rowBox).not.toBeNull();
+		expect(rowBox!.width).toBeLessThanOrEqual(375);
 	});
 });
 

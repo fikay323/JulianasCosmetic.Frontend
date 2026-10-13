@@ -19,7 +19,7 @@ const initialProducts = [
 		nafdacRegNo: "NAFDAC Reg. No. 04-9218",
 		images: [
 			"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
-			"https://images.unsplash.com/photo-1608248597359-5989e248b652?auto=format&fit=crop&w=1000&q=80",
+			"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80",
 		],
 		description:
 			"An ultra-concentrated Parisian botanical elixir infusing multi-peptides, pure French botanical seed oils, and 3% niacinamide to illuminate skin while reinforcing cellular lipid barriers.",
@@ -60,7 +60,7 @@ const initialProducts = [
 		featured: true,
 		nafdacRegNo: "NAFDAC Reg. No. 04-8841",
 		images: [
-			"https://images.unsplash.com/photo-1556228722-d0b777a83d73?auto=format&fit=crop&w=1000&q=80",
+			"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80",
 		],
 		description:
 			"A weightless physical broad-spectrum mineral shield crafted in Paris. Engineered exclusively for melanin-rich complexions.",
@@ -128,7 +128,7 @@ const initialProducts = [
 		featured: true,
 		nafdacRegNo: "NAFDAC Reg. No. 04-9540",
 		images: [
-			"https://images.unsplash.com/photo-1608248597359-5989e248b652?auto=format&fit=crop&w=1000&q=80",
+			"https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80",
 		],
 		description:
 			"An intensely restorative Parisian whipped crème that mimics the natural skin lipid matrix to seal in hydration.",
