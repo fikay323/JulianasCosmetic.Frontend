@@ -121,6 +121,7 @@ export interface UpdateProductDto {
 
 export interface CreateProductDto {
 	name: string;
+	slug?: string;
 	tagline?: string;
 	price: number;
 	category: ProductCategory;
@@ -131,8 +132,32 @@ export interface CreateProductDto {
 	images?: string[];
 	description?: string;
 	nafdacRegNo?: string;
+	keyActives?: string[];
+	phLevel?: string;
+	texture?: string;
+	skinType?: string;
+	bioActives?: string;
+	inci?: string;
+	ritual?: string;
+	nafdac?: string;
 	formulation?: Partial<FormulationSpecs>;
 	accordions?: Partial<ProductAccordions>;
+}
+
+export interface ImageSignature {
+	signature: string;
+	timestamp: string;
+	apiKey: string;
+	cloudName: string;
+	folder: string;
+}
+
+export interface UploadedVisual {
+	id: string;
+	url: string;
+	publicId: string;
+	fileName?: string;
+	fileSize?: number;
 }
 
 export interface AdminStats {

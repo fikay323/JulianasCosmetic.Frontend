@@ -295,7 +295,23 @@ const server = http.createServer(async (req, res) => {
 		);
 	}
 
-	// 0.5 /api/images/upload & /api/images
+	// 0.5 /api/images/upload, /api/images/sign & /api/images
+	if (pathname === "/api/images/sign" && req.method === "POST") {
+		const body = await parseBody(req);
+		const folder = body.folder || (body.slug ? `julianas-cosmetics/products/${body.slug}` : "julianas-cosmetics/products");
+		const timestamp = Math.floor(Date.now() / 1000);
+		res.writeHead(200, { "Content-Type": "application/json" });
+		return res.end(
+			JSON.stringify({
+				timestamp,
+				signature: "mock_signature_test_hash",
+				apiKey: "test_cloud_api_key",
+				cloudName: "julianas-cosmetics",
+				folder,
+			})
+		);
+	}
+
 	if (pathname === "/api/images/upload" && req.method === "POST") {
 		// Consume multipart body
 		await new Promise((resolve) => {
@@ -336,6 +352,7 @@ const server = http.createServer(async (req, res) => {
 		if (req.method === "POST") {
 			const body = await parseBody(req);
 			const slug =
+				body.slug ||
 				body.name
 					?.toLowerCase()
 					.replace(/[^a-z0-9]+/g, "-")

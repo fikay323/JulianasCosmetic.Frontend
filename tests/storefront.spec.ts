@@ -644,13 +644,26 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 	});
 
 	test("Admin can preview image before uploading, confirm upload, and remove/delete uploaded image to upload a new one", async ({ page }) => {
+		// Mock direct Cloudinary upload endpoint
+		await page.route("**/api.cloudinary.com/**", async (route) => {
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					secure_url: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80",
+					public_id: "julianas-cosmetics/products/test-upload-visual-1",
+				}),
+			});
+		});
+
 		await page.goto("/admin/products");
 		const productsTable = page.locator('[data-testid="products-table"]');
 		await expect(productsTable).toBeVisible({ timeout: 15000 });
 
-		// Open Add Formulation modal
-		const addNewBtn = page.locator('button:has-text("Add Formulation")').first();
-		await addNewBtn.click();
+		// Click Add Formulation link to navigate to dedicated creation page
+		const addNewLink = page.locator('a:has-text("Add Formulation")').first();
+		await addNewLink.click();
+		await expect(page).toHaveURL(/\/admin\/products\/new/);
 
 		// Verify empty dropzone is shown initially
 		const dropzone = page.locator('[data-testid="select-image-dropzone"]');
@@ -671,24 +684,170 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 
 		const localPreviewCard = page.locator('[data-testid="image-local-preview-card"]');
 		await expect(localPreviewCard).toBeVisible();
-		await expect(localPreviewCard).toContainText("Preview — Confirm Before Uploading");
+		await expect(localPreviewCard).toContainText("Preview before direct Cloudinary upload");
 		await expect(localPreviewCard).toContainText("parisian-elixir.png");
 
-		// 2. Click "Confirm & Upload" and verify it uploads to backend and transitions to Uploaded & Active state
+		// 2. Click "Confirm & Upload All" and verify it uploads directly to Cloudinary and transitions to Uploaded Visuals state
 		const confirmUploadBtn = page.locator('[data-testid="confirm-upload-btn"]');
 		await confirmUploadBtn.click();
 
 		const uploadedCard = page.locator('[data-testid="uploaded-image-card"]');
 		await expect(uploadedCard).toBeVisible({ timeout: 10000 });
-		await expect(uploadedCard).toContainText("Uploaded & Active");
+		await expect(page.locator("text=/Cover Visual/i").first()).toBeVisible();
 
-		// 3. Click "Remove & Delete Image" so the uploaded image is deleted from storage and a new one can be uploaded
-		const removeBtn = page.locator('[data-testid="remove-uploaded-image-btn"]');
+		// 3. Click "Remove & delete" button so the uploaded image is deleted from storage and a new one can be uploaded
+		const removeBtn = page.locator('[data-testid="remove-uploaded-image-btn"]').first();
 		await expect(removeBtn).toBeVisible();
 		await removeBtn.click();
 
 		// Verify uploader resets to the file selection dropzone
 		await expect(dropzone).toBeVisible({ timeout: 10000 });
+	});
+
+	test("Admin can upload multiple images, rearrange visual order, and verify Primary Cover Visual shifts", async ({ page }) => {
+		let uploadCount = 0;
+		await page.route("**/api.cloudinary.com/**", async (route) => {
+			uploadCount++;
+			await route.fulfill({
+				status: 200,
+				contentType: "application/json",
+				body: JSON.stringify({
+					secure_url: `https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80&img=${uploadCount}`,
+					public_id: `julianas-cosmetics/products/test-visual-${uploadCount}`,
+				}),
+			});
+		});
+
+		await page.goto("/admin/products/new");
+		const fileInput = page.locator('[data-testid="product-image-file-input"]');
+		const minimalPngBuffer = Buffer.from(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+			"base64"
+		);
+
+		await fileInput.setInputFiles([
+			{ name: "visual-first.png", mimeType: "image/png", buffer: minimalPngBuffer },
+			{ name: "visual-second.png", mimeType: "image/png", buffer: minimalPngBuffer },
+		]);
+
+		const confirmUploadBtn = page.locator('[data-testid="confirm-upload-btn"]');
+		await expect(confirmUploadBtn).toBeVisible();
+		await confirmUploadBtn.click();
+
+		const uploadedCard = page.locator('[data-testid="uploaded-image-card"]');
+		await expect(uploadedCard).toBeVisible({ timeout: 10000 });
+
+		// Verify 2 uploaded visuals exist
+		const removeBtns = page.locator('[data-testid="remove-uploaded-image-btn"]');
+		await expect(removeBtns).toHaveCount(2);
+
+		// First visual has "Cover Visual" badge
+		const coverBadge = page.locator("text=/Cover Visual/i").first();
+		await expect(coverBadge).toBeVisible();
+
+		// Click Move Right on first visual
+		const moveRightBtn = page.locator('button[title="Move visual right"]').first();
+		await expect(moveRightBtn).toBeEnabled();
+		await moveRightBtn.click();
+
+		// Visual order swapped: verify still 2 visuals and Cover Visual badge is still present on index 0
+		await expect(page.locator("text=/Cover Visual/i").first()).toBeVisible();
+	});
+
+	test("Admin can preview the storefront PDP live replica on the creation page", async ({ page }) => {
+		await page.goto("/admin/products/new");
+
+		// Fill in formulation name and retail price
+		const nameInput = page.locator('input[placeholder*="Luminous Peptide"]').first();
+		await nameInput.fill("Parisian Phyto-Ceramide Nectar");
+
+		const priceInput = page.locator('input[type="number"]').first();
+		await priceInput.fill("48500");
+
+		// Click "Preview Storefront"
+		const previewBtn = page.locator('button:has-text("Preview Storefront")');
+		await previewBtn.click();
+
+		// Assert PDP Preview is rendered
+		const previewContainer = page.locator('[data-testid="product-pdp-preview"]');
+		await expect(previewContainer).toBeVisible();
+		await expect(previewContainer).toContainText("Parisian Phyto-Ceramide Nectar");
+		await expect(previewContainer).toContainText("₦48,500");
+
+		// Switch back to editor
+		const returnBtn = page.locator('button:has-text("Return to Editor")');
+		await returnBtn.click();
+		await expect(previewContainer).not.toBeVisible();
+	});
+
+	test("Admin draft autosaves to localStorage, persists on page reload, prompts exit guard, and triggers resume toast on admin portal", async ({ page }) => {
+		await page.goto("/admin/products/new");
+
+		// Fill in formulation name
+		const nameInput = page.locator('input[placeholder*="Luminous Peptide"]').first();
+		await nameInput.fill("Botanical Lipid Radiance Concentrate");
+
+		// Wait for 400ms debounce
+		await page.waitForTimeout(400);
+
+		// Assert localStorage has saved draft
+		const savedDraftRaw = await page.evaluate(() => localStorage.getItem("jc_admin_product_draft"));
+		expect(savedDraftRaw).not.toBeNull();
+		expect(savedDraftRaw).toContain("Botanical Lipid Radiance Concentrate");
+
+		// Reload the page and assert formulation name remains populated from localStorage
+		await page.reload();
+		const nameInputAfterReload = page.locator('input[placeholder*="Luminous Peptide"]').first();
+		await expect(nameInputAfterReload).toHaveValue("Botanical Lipid Radiance Concentrate");
+
+		// Attempt to navigate away by clicking "Catalog" breadcrumb
+		const catalogBreadcrumb = page.locator('button:has-text("Catalog")');
+		await catalogBreadcrumb.click();
+
+		// Verify exit confirmation guard modal appears
+		const exitModal = page.locator("text=/Discard Unfinished Draft/i");
+		await expect(exitModal).toBeVisible();
+
+		// Click "Stay and Keep Editing"
+		const stayBtn = page.locator('button:has-text("Stay and Keep Editing")');
+		await stayBtn.click();
+		await expect(exitModal).not.toBeVisible();
+		await expect(page).toHaveURL(/\/admin\/products\/new/);
+
+		// Navigate directly to /admin/products to test the admin layout resume draft alert toast
+		await page.goto("/admin/products");
+		const draftToast = page.locator('[data-testid="unfinished-draft-toast"]');
+		await expect(draftToast).toBeVisible({ timeout: 10000 });
+		await expect(draftToast).toContainText("Botanical Lipid Radiance Concentrate");
+
+		// Click "Resume Formulation" on toast and verify it navigates back to /admin/products/new
+		const resumeBtn = page.locator('[data-testid="resume-draft-button"]');
+		await resumeBtn.click();
+		await expect(page).toHaveURL(/\/admin\/products\/new/);
+		await expect(page.locator('input[placeholder*="Luminous Peptide"]').first()).toHaveValue("Botanical Lipid Radiance Concentrate");
+
+		// Now publish the formulation
+		const priceInput = page.locator('input[type="number"]').first();
+		await priceInput.fill("52000");
+
+		const descInput = page.locator("textarea").first();
+		await descInput.fill("An ultra-concentrated botanical elixir crafted in Paris.");
+
+		const publishBtn = page.locator('[data-testid="publish-formulation-btn"]');
+		await publishBtn.click();
+
+		// Verify redirect to /admin/products upon successful creation
+		await expect(page).toHaveURL(/\/admin\/products/, { timeout: 10000 });
+
+		// Verify product is now listed in catalog
+		await expect(page.locator("text=Botanical Lipid Radiance Concentrate").first()).toBeVisible({ timeout: 10000 });
+
+		// Verify localStorage draft was purged
+		const clearedDraft = await page.evaluate(() => localStorage.getItem("jc_admin_product_draft"));
+		expect(clearedDraft).toBeNull();
+
+		// Verify no unfinished draft toast appears anymore
+		await expect(page.locator('[data-testid="unfinished-draft-toast"]')).not.toBeVisible();
 	});
 
 	test("Admin Navigation Bar and Products table render cleanly on mobile viewport without horizontal overflow", async ({ page }) => {

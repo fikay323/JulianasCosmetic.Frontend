@@ -14,13 +14,12 @@ import {
 	Plus,
 	Trash2,
 	X,
-	Sparkles,
 	Edit3,
 } from "lucide-react";
 import { formatNaira } from "@/src/lib/utils";
 import { useToast } from "@/src/context/ToastContext";
 import { ProductImageUploader } from "@/src/components/admin/ProductImageUploader";
-import type { Product, ProductCategory, CreateProductDto, UpdateProductDto } from "@/src/types/store";
+import type { Product, ProductCategory, UpdateProductDto } from "@/src/types/store";
 
 const CATEGORIES: ProductCategory[] = [
 	"Serums",
@@ -42,36 +41,6 @@ export default function AdminProductsPage(): React.JSX.Element {
 	const [togglingFeaturedId, setTogglingFeaturedId] = useState<string | null>(null);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [brokenImageIds, setBrokenImageIds] = useState<Record<string, boolean>>({});
-
-	// Modal State for adding a product
-	const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-	const [isSubmittingNew, setIsSubmittingNew] = useState<boolean>(false);
-	const [hasAddPendingPreview, setHasAddPendingPreview] = useState<boolean>(false);
-	const [newProductForm, setNewProductForm] = useState<{
-		name: string;
-		category: ProductCategory;
-		price: string;
-		size: string;
-		tagline: string;
-		description: string;
-		imageUrl: string;
-		imagePublicId: string;
-		keyActives: string;
-		featured: boolean;
-		inStock: boolean;
-	}>({
-		name: "",
-		category: "Serums",
-		price: "",
-		size: "50 ml / 1.7 fl. oz.",
-		tagline: "Cellular Radiance & French Botanical Protection",
-		description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
-		imageUrl: "",
-		imagePublicId: "",
-		keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
-		featured: false,
-		inStock: true,
-	});
 
 	// Modal State for editing an existing product
 	const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
@@ -297,128 +266,6 @@ export default function AdminProductsPage(): React.JSX.Element {
 		}
 	};
 
-	const handleCancelAddModal = async (): Promise<void> => {
-		if (newProductForm.imagePublicId || newProductForm.imageUrl) {
-			await fetch("/api/images", {
-				method: "DELETE",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					publicId: newProductForm.imagePublicId,
-					imageUrl: newProductForm.imageUrl,
-				}),
-			}).catch(() => { });
-		}
-		setHasAddPendingPreview(false);
-		setNewProductForm({
-			name: "",
-			category: "Serums",
-			price: "",
-			size: "50 ml / 1.7 fl. oz.",
-			tagline: "Cellular Radiance & French Botanical Protection",
-			description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
-			imageUrl: "",
-			imagePublicId: "",
-			keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
-			featured: false,
-			inStock: true,
-		});
-		setIsAddModalOpen(false);
-	};
-
-	const handleCreateProduct = async (e: React.FormEvent): Promise<void> => {
-		e.preventDefault();
-		if (hasAddPendingPreview) {
-			toast.warning(
-				"Please click 'Confirm & Upload' on your selected image preview before creating the formulation.",
-				"Unconfirmed Image Preview"
-			);
-			return;
-		}
-
-		if (!newProductForm.name.trim()) {
-			setError("Formulation name is required.");
-			return;
-		}
-
-		if (!newProductForm.imageUrl.trim()) {
-			toast.error("Please select and confirm-upload a product image first.", "Image Required");
-			return;
-		}
-
-		const priceNum = Number(newProductForm.price);
-		if (isNaN(priceNum) || priceNum <= 0) {
-			setError("Please enter a valid retail price in Naira.");
-			return;
-		}
-
-		setIsSubmittingNew(true);
-		setError(null);
-
-		const activesList = newProductForm.keyActives
-			.split(",")
-			.map((s) => s.trim())
-			.filter(Boolean);
-
-		const payload: CreateProductDto = {
-			name: newProductForm.name.trim(),
-			category: newProductForm.category,
-			price: priceNum,
-			size: newProductForm.size.trim(),
-			tagline: newProductForm.tagline.trim(),
-			description: newProductForm.description.trim(),
-			images: [newProductForm.imageUrl.trim()],
-			featured: newProductForm.featured,
-			stockStatus: newProductForm.inStock ? "In Stock" : "Out of Stock",
-			inStock: newProductForm.inStock,
-			formulation: {
-				keyActives: activesList.length > 0 ? activesList : ["French Botanical Extract"],
-			},
-		};
-
-		try {
-			const res = await fetch("/api/products", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-
-			if (!res.ok) {
-				const errData = (await res.json().catch(() => ({}))) as { error?: string };
-				throw new Error(errData.error || "Failed to create formulation");
-			}
-
-			const created = (await res.json()) as Product;
-			setProducts((prev) => [created, ...prev]);
-			setPriceInputs((prev) => ({ ...prev, [created.id]: String(created.price) }));
-			setIsAddModalOpen(false);
-			setHasAddPendingPreview(false);
-			setSuccessMsg(`Successfully added formulation "${created.name}" to catalog!`);
-
-			// Reset form
-			setNewProductForm({
-				name: "",
-				category: "Serums",
-				price: "",
-				size: "50 ml / 1.7 fl. oz.",
-				tagline: "Cellular Radiance & French Botanical Protection",
-				description: "An ultra-concentrated Parisian botanical elixir imported directly from France to protect and nurture melanin-rich skin barriers.",
-				imageUrl: "",
-				imagePublicId: "",
-				keyActives: "French Plant Squalane, Niacinamide, Botanical Peptides",
-				featured: false,
-				inStock: true,
-			});
-		} catch (err: unknown) {
-			const msg = err instanceof Error ? err.message : "Error creating product";
-			setError(msg);
-			toast.error(msg, "Creation Failed");
-		} finally {
-			setIsSubmittingNew(false);
-		}
-	};
-
 	const handleOpenEditModal = (product: Product): void => {
 		const initialImg = product.images?.[0] || "";
 		setHasEditPendingPreview(false);
@@ -593,14 +440,13 @@ export default function AdminProductsPage(): React.JSX.Element {
 							<span>Refresh</span>
 						</button>
 
-						<button
-							type="button"
-							onClick={() => setIsAddModalOpen(true)}
+						<Link
+							href="/admin/products/new"
 							className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all active:scale-95"
 						>
 							<Plus className="h-4 w-4" />
 							<span>Add Formulation</span>
-						</button>
+						</Link>
 					</div>
 				</div>
 
@@ -693,14 +539,13 @@ export default function AdminProductsPage(): React.JSX.Element {
 								<Package className="h-7 w-7" />
 							</div>
 							<h3 className="font-serif text-lg font-medium text-primary">No Products Found</h3>
-							<button
-								type="button"
-								onClick={() => setIsAddModalOpen(true)}
+							<Link
+								href="/admin/products/new"
 								className="mt-4 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-white"
 							>
 								<Plus className="h-4 w-4" />
 								<span>Add First Product</span>
-							</button>
+							</Link>
 						</div>
 					) : (
 						<div className="lg:overflow-x-auto">
@@ -910,225 +755,6 @@ export default function AdminProductsPage(): React.JSX.Element {
 					)}
 				</div>
 			</div>
-
-			{/* Modal: Add New Formulation */}
-			{isAddModalOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 backdrop-blur-sm p-4 overflow-y-auto">
-					<div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border-delicate bg-surface-card p-6 sm:p-8 shadow-2xl">
-						<div className="flex items-center justify-between border-b border-border-delicate pb-4">
-							<div className="flex items-center gap-2">
-								<Sparkles className="h-5 w-5 text-secondary-dark" />
-								<h2 className="font-serif text-xl font-medium text-primary">
-									Add Imported Formulation
-								</h2>
-							</div>
-							<button
-								type="button"
-								onClick={() => void handleCancelAddModal()}
-								className="rounded-full p-1 text-on-surface-variant hover:bg-surface-container-low"
-							>
-								<X className="h-5 w-5" />
-							</button>
-						</div>
-
-						<form onSubmit={handleCreateProduct} className="mt-6 space-y-4 text-xs">
-							<div>
-								<label className="block font-semibold uppercase tracking-wider text-primary">
-									Product Name *
-								</label>
-								<input
-									type="text"
-									required
-									placeholder="e.g. Parisian Botanical Barrier Oil"
-									value={newProductForm.name}
-									onChange={(e) =>
-										setNewProductForm({ ...newProductForm, name: e.target.value })
-									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-								/>
-							</div>
-
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<div>
-									<label className="block font-semibold uppercase tracking-wider text-primary">
-										Category *
-									</label>
-									<select
-										value={newProductForm.category}
-										onChange={(e) =>
-											setNewProductForm({
-												...newProductForm,
-												category: e.target.value as ProductCategory,
-											})
-										}
-										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-									>
-										{CATEGORIES.map((cat) => (
-											<option key={cat} value={cat}>
-												{cat}
-											</option>
-										))}
-									</select>
-								</div>
-
-								<div>
-									<label className="block font-semibold uppercase tracking-wider text-primary">
-										Price in Naira (₦) *
-									</label>
-									<input
-										type="number"
-										required
-										min="1000"
-										step="500"
-										placeholder="32000"
-										value={newProductForm.price}
-										onChange={(e) =>
-											setNewProductForm({ ...newProductForm, price: e.target.value })
-										}
-										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-									/>
-								</div>
-							</div>
-
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<div>
-									<label className="block font-semibold uppercase tracking-wider text-primary">
-										Volume / Size
-									</label>
-									<input
-										type="text"
-										placeholder="30 ml / 1.0 fl. oz."
-										value={newProductForm.size}
-										onChange={(e) =>
-											setNewProductForm({ ...newProductForm, size: e.target.value })
-										}
-										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-									/>
-								</div>
-
-								<div>
-									<label className="block font-semibold uppercase tracking-wider text-primary">
-										Tagline
-									</label>
-									<input
-										type="text"
-										placeholder="Cellular Radiance Elixir"
-										value={newProductForm.tagline}
-										onChange={(e) =>
-											setNewProductForm({ ...newProductForm, tagline: e.target.value })
-										}
-										className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-									/>
-								</div>
-							</div>
-
-							<ProductImageUploader
-								currentImageUrl={newProductForm.imageUrl}
-								currentPublicId={newProductForm.imagePublicId}
-								onImageUploaded={(url, publicId) =>
-									setNewProductForm((prev) => ({
-										...prev,
-										imageUrl: url,
-										imagePublicId: publicId,
-									}))
-								}
-								onImageRemoved={() =>
-									setNewProductForm((prev) => ({
-										...prev,
-										imageUrl: "",
-										imagePublicId: "",
-									}))
-								}
-								onPendingPreviewChange={setHasAddPendingPreview}
-							/>
-
-							<div>
-								<label className="block font-semibold uppercase tracking-wider text-primary">
-									Key Bio-Actives (Comma separated)
-								</label>
-								<input
-									type="text"
-									placeholder="French Camellia Seed Oil, 3% Niacinamide, Peptides"
-									value={newProductForm.keyActives}
-									onChange={(e) =>
-										setNewProductForm({
-											...newProductForm,
-											keyActives: e.target.value,
-										})
-									}
-									className="mt-1 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
-								/>
-							</div>
-
-							<div>
-								<label className="block font-semibold uppercase tracking-wider text-primary">
-									Description
-								</label>
-								<textarea
-									rows={5}
-									value={newProductForm.description}
-									onChange={(e) =>
-										setNewProductForm({
-											...newProductForm,
-											description: e.target.value,
-										})
-									}
-									className="mt-1.5 min-h-[120px] w-full resize-y rounded-DEFAULT border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
-								/>
-							</div>
-
-							<div className="flex items-center gap-6 pt-2">
-								<label className="flex items-center gap-2 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={newProductForm.featured}
-										onChange={(e) =>
-											setNewProductForm({
-												...newProductForm,
-												featured: e.target.checked,
-											})
-										}
-										className="h-4 w-4 rounded border-border-delicate text-primary focus:ring-primary"
-									/>
-									<span className="font-medium text-primary">Feature on Homepage</span>
-								</label>
-
-								<label className="flex items-center gap-2 cursor-pointer">
-									<input
-										type="checkbox"
-										checked={newProductForm.inStock}
-										onChange={(e) =>
-											setNewProductForm({
-												...newProductForm,
-												inStock: e.target.checked,
-											})
-										}
-										className="h-4 w-4 rounded border-border-delicate text-primary focus:ring-primary"
-									/>
-									<span className="font-medium text-primary">Immediate Stock Available</span>
-								</label>
-							</div>
-
-							<div className="flex items-center justify-end gap-3 pt-4 border-t border-border-delicate">
-								<button
-									type="button"
-									onClick={() => void handleCancelAddModal()}
-									className="rounded-full border border-border-delicate px-4 py-2 text-xs font-semibold text-on-surface-variant hover:text-primary"
-								>
-									Cancel
-								</button>
-								<button
-									type="submit"
-									disabled={isSubmittingNew}
-									className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all disabled:opacity-50"
-								>
-									<span>{isSubmittingNew ? "Saving..." : "Create Formulation"}</span>
-								</button>
-							</div>
-						</form>
-					</div>
-				</div>
-			)}
 
 			{/* Modal: Edit Formulation Details */}
 			{isEditModalOpen && (

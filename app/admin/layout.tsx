@@ -14,6 +14,9 @@ import {
 	LayoutDashboard,
 	ExternalLink,
 	AlertCircle,
+	Sparkles,
+	Trash2,
+	X,
 } from "lucide-react";
 import { useToast } from "@/src/context/ToastContext";
 
@@ -29,6 +32,7 @@ export default function AdminLayout({
 	const [passkey, setPasskey] = useState<string>("");
 	const [authError, setAuthError] = useState<string | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+	const [draftNotice, setDraftNotice] = useState<{ name: string } | null>(null);
 
 	useEffect(() => {
 		const checkAuth = async (): Promise<void> => {
@@ -108,6 +112,55 @@ export default function AdminLayout({
 			localStorage.removeItem("jc_admin_auth");
 		}
 		setIsAuthenticated(false);
+	};
+
+	useEffect(() => {
+		queueMicrotask(() => {
+			if (typeof window === "undefined" || pathname === "/admin/products/new") {
+				setDraftNotice(null);
+				return;
+			}
+
+			try {
+				const raw = localStorage.getItem("jc_admin_product_draft");
+				if (raw) {
+					const parsed = JSON.parse(raw) as {
+						name?: string;
+						price?: string;
+						description?: string;
+						visuals?: unknown[];
+						form?: { name?: string; visuals?: unknown[] };
+					};
+					const draftName = parsed?.name?.trim() || parsed?.form?.name?.trim();
+					const hasVisuals =
+						(Array.isArray(parsed?.visuals) && parsed.visuals.length > 0) ||
+						(Array.isArray(parsed?.form?.visuals) && parsed.form.visuals.length > 0);
+					const hasContent = Boolean(
+						draftName ||
+						hasVisuals ||
+						parsed?.price?.trim() ||
+						parsed?.description?.trim()
+					);
+					if (hasContent) {
+						setDraftNotice({
+							name: draftName || "Untitled Formulation",
+						});
+						return;
+					}
+				}
+			} catch {
+				// Ignore corrupted JSON
+			}
+			setDraftNotice(null);
+		});
+	}, [pathname]);
+
+	const handleDiscardDraft = (): void => {
+		if (typeof window !== "undefined") {
+			localStorage.removeItem("jc_admin_product_draft");
+		}
+		setDraftNotice(null);
+		toast.info("Unfinished formulation draft discarded from storage.");
 	};
 
 	if (isChecking) {
@@ -310,6 +363,62 @@ export default function AdminLayout({
 
 			{/* Main Content Area */}
 			<main>{children}</main>
+
+			{/* Floating Resume Formulation Draft Alert Toast */}
+			{draftNotice && pathname !== "/admin/products/new" && (
+				<aside
+					data-testid="unfinished-draft-toast"
+					aria-label="Unfinished formulation draft notification"
+					className="fixed bottom-6 right-6 z-50 max-w-md w-[calc(100vw-3rem)] rounded-2xl border border-secondary-fixed/60 bg-surface-card p-4 sm:p-5 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-4 duration-300"
+				>
+					<div className="flex items-start gap-3">
+						<div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-secondary-fixed text-secondary-dark">
+							<Sparkles className="h-5 w-5" />
+						</div>
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center justify-between gap-2">
+								<h4 className="font-serif text-sm font-semibold text-primary truncate">
+									Unfinished Formulation Waiting
+								</h4>
+								<button
+									type="button"
+									onClick={() => setDraftNotice(null)}
+									className="text-on-surface-variant hover:text-primary p-0.5 rounded-full"
+									title="Dismiss notice"
+								>
+									<X className="h-4 w-4" />
+								</button>
+							</div>
+							<p className="mt-1 text-xs text-on-surface-variant leading-relaxed">
+								You have an uncommitted product draft{" "}
+								<span className="font-semibold text-primary">
+									&ldquo;{draftNotice.name}&rdquo;
+								</span>{" "}
+								stored in browser memory.
+							</p>
+							<div className="mt-3.5 flex flex-wrap items-center gap-2">
+								<Link
+									href="/admin/products/new"
+									data-testid="resume-draft-button"
+									className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-primary-dark transition-all"
+								>
+									<span>Resume Formulation</span>
+									<ArrowRight className="h-3.5 w-3.5" />
+								</Link>
+								<button
+									type="button"
+									onClick={handleDiscardDraft}
+									data-testid="discard-draft-button"
+									className="inline-flex items-center gap-1.5 rounded-full border border-border-delicate bg-surface px-3 py-1.5 text-xs font-semibold text-on-surface-variant hover:border-error/40 hover:bg-error-container hover:text-error transition-all"
+								>
+									<Trash2 className="h-3 w-3" />
+									<span>Discard</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</aside>
+			)}
 		</div>
 	);
 }
