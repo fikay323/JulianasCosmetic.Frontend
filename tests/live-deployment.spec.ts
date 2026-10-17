@@ -200,4 +200,92 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		const cleared = await page.evaluate(() => localStorage.getItem("jc_admin_product_draft"));
 		expect(cleared).toBeNull();
 	});
+
+	test("6. Creation page opens with blank inputs (no sample data) and preview without visual shows empty placeholder", async ({ page }) => {
+		// Clear any draft from localStorage
+		await page.addInitScript(() => {
+			window.localStorage.removeItem("jc_admin_product_draft");
+		});
+
+		await page.goto(`${LIVE_URL}/admin/products/new`);
+
+		// Assert name input is completely empty
+		const nameInput = page.locator('input[placeholder*="Luminous Peptide"]').first();
+		await expect(nameInput).toHaveValue("");
+
+		// Assert tagline input is completely empty
+		const taglineInput = page.locator('input[placeholder*="Cellular Radiance"]').first();
+		await expect(taglineInput).toHaveValue("");
+
+		// Assert size input is completely empty
+		const sizeInput = page.locator('input[placeholder*="30 ml"]').first();
+		await expect(sizeInput).toHaveValue("");
+
+		// Assert description textarea is completely empty
+		const descTextarea = page.locator("textarea").first();
+		await expect(descTextarea).toHaveValue("");
+
+		// Assert inputs and textareas use rounded-lg
+		await expect(nameInput).toHaveClass(/rounded-lg/);
+		await expect(descTextarea).toHaveClass(/rounded-lg/);
+
+		// Switch to Preview Mode without uploading an image
+		const previewBtn = page.locator('button:has-text("Preview Storefront")');
+		await previewBtn.click();
+
+		// Assert empty visual placeholder is displayed instead of a fallback image
+		const emptyPlaceholder = page.locator('[data-testid="preview-empty-visual-placeholder"]');
+		await expect(emptyPlaceholder).toBeVisible();
+		await expect(emptyPlaceholder).toContainText("No Formulation Visuals Uploaded");
+
+		// Return to editor
+		const returnBtn = page.locator('button:has-text("Return to Editor")');
+		await returnBtn.click();
+		await expect(emptyPlaceholder).not.toBeVisible();
+	});
+
+	test("7. Catalog product Edit button navigates to dedicated edit page with 5 sections and live preview", async ({ page }) => {
+		await page.goto(`${LIVE_URL}/admin/products`);
+		const productsTable = page.locator('[data-testid="products-table"]');
+		await expect(productsTable).toBeVisible({ timeout: 20000 });
+
+		const productRow = page.locator('tr[data-testid="product-row"]').first();
+		await expect(productRow).toBeVisible();
+
+		// Find Edit link in row
+		const editLink = productRow.locator('a:has-text("Edit"), a[aria-label*="Edit" i]').first();
+		await expect(editLink).toBeVisible();
+
+		// Click to navigate to /admin/products/[id]/edit
+		await editLink.click();
+		await expect(page).toHaveURL(/\/admin\/products\/[^/]+\/edit/, { timeout: 15000 });
+
+		// Assert header displays Edit Formulation
+		await expect(page.locator("h1")).toContainText(/Edit /i);
+
+		// Assert 5 editorial sections exist on edit page
+		await expect(page.locator("text=/1. Formulation Identity & Classification/i")).toBeVisible();
+		await expect(page.locator("text=/2. Pricing & Stock Availability/i")).toBeVisible();
+		await expect(page.locator("text=/3. Formulation Visual Gallery & Cloudinary CDN/i")).toBeVisible();
+		await expect(page.locator("text=/4. Clinical Specifications/i")).toBeVisible();
+		await expect(page.locator("text=/5. Formulation Transparency & Protocols/i")).toBeVisible();
+
+		// Assert rounded-lg border radius consistency on inputs and textareas
+		const nameInput = page.locator('input[placeholder*="Luminous Peptide"]').first();
+		await expect(nameInput).toHaveClass(/rounded-lg/);
+		const descTextarea = page.locator("textarea").first();
+		await expect(descTextarea).toHaveClass(/rounded-lg/);
+
+		// Test preview toggle in edit page
+		const previewBtn = page.locator('button:has-text("Preview Storefront")');
+		await previewBtn.click();
+		const previewContainer = page.locator('[data-testid="product-pdp-preview"]');
+		await expect(previewContainer).toBeVisible();
+		await expect(page.locator('button:has-text("Save Changes")').first()).toBeVisible();
+
+		// Return to editor
+		const returnBtn = page.locator('button:has-text("Return to Editor")');
+		await returnBtn.click();
+		await expect(previewContainer).not.toBeVisible();
+	});
 });

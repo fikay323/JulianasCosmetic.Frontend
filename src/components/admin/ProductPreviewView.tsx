@@ -14,6 +14,7 @@ import {
 	ArrowLeft,
 	Sparkles,
 	Eye,
+	Image as ImageIcon,
 } from "lucide-react";
 import type { ProductDraftState } from "@/src/hooks/useProductDraft";
 import { formatNaira } from "@/src/lib/utils";
@@ -23,6 +24,8 @@ export interface ProductPreviewViewProps {
 	onClosePreview: () => void;
 	onPublish?: () => void;
 	isPublishing?: boolean;
+	publishLabel?: string;
+	publishingLabel?: string;
 }
 
 export function ProductPreviewView({
@@ -30,17 +33,17 @@ export function ProductPreviewView({
 	onClosePreview,
 	onPublish,
 	isPublishing,
+	publishLabel,
+	publishingLabel,
 }: ProductPreviewViewProps): React.JSX.Element {
 	const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 	const [quantity, setQuantity] = useState<number>(1);
 	const [isZoomed, setIsZoomed] = useState<boolean>(false);
 	const [zoomPos, setZoomPos] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
 
-	const fallbackCover =
-		"https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=1000&q=80";
-	const images =
-		draft.visuals.length > 0 ? draft.visuals.map((v) => v.url) : [fallbackCover];
-	const currentImage = images[selectedImageIndex] || images[0];
+	const hasVisuals = draft.visuals.length > 0;
+	const images = hasVisuals ? draft.visuals.map((v) => v.url) : [];
+	const currentImage = images[selectedImageIndex] || images[0] || "";
 
 	const parsedPrice = Number(draft.price) || 0;
 	const isOutOfStock = !draft.inStock || draft.stockStatus === "Out of Stock";
@@ -98,7 +101,11 @@ export function ProductPreviewView({
 							className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-xs font-bold uppercase tracking-wider text-white shadow-sm hover:bg-primary-dark transition-all disabled:opacity-50"
 						>
 							<Sparkles className="h-3.5 w-3.5 text-secondary" />
-							<span>{isPublishing ? "Publishing..." : "Publish Formulation"}</span>
+							<span>
+								{isPublishing
+									? (publishingLabel || "Publishing...")
+									: (publishLabel || "Publish Formulation")}
+							</span>
 						</button>
 					)}
 				</div>
@@ -119,79 +126,100 @@ export function ProductPreviewView({
 				<div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
 					{/* Left Column: Visual Gallery & Interactive Zoom */}
 					<div className="lg:col-span-6 space-y-4">
-						{/* Main High-Res Image with Zoom Magnifier */}
-						<div
-							className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border-delicate bg-surface-card cursor-zoom-in shadow-sm"
-							onMouseEnter={() => setIsZoomed(true)}
-							onMouseLeave={() => setIsZoomed(false)}
-							onMouseMove={handleMouseMove}
-						>
-							<div
-								className="relative h-full w-full"
-								style={{
-									transform: isZoomed ? "scale(2.2)" : "scale(1)",
-									transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
-									transition: isZoomed ? "transform 0.05s ease-out" : "transform 0.3s ease-out",
-								}}
-							>
-								<Image
-									src={currentImage}
-									alt={draft.name || "Formulation visual"}
-									fill
-									priority
-									sizes="(max-width: 1024px) 100vw, 50vw"
-									className="object-cover"
-								/>
-							</div>
-
-							{/* Out of Stock Overlay */}
-							{isOutOfStock && (
-								<div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs">
-									<span className="rounded-full bg-error px-6 py-2 text-sm font-bold uppercase tracking-wider text-white shadow-lg">
-										Out of Stock
-									</span>
-								</div>
-							)}
-
-							{/* Floating Badges */}
-							<div className="pointer-events-none absolute top-4 left-4 flex flex-col gap-2">
-								<span className="rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary shadow-xs">
-									{draft.nafdacRegNo || "NAFDAC Certified"}
-								</span>
-								<span className="rounded-full bg-secondary-fixed/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed shadow-xs">
-									Melanin Tested
-								</span>
-							</div>
-
-							{/* Zoom Hint */}
-							<div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/50 backdrop-blur-md px-3 py-1 text-[10px] font-medium text-white transition-opacity group-hover:opacity-0">
-								Hover to zoom
-							</div>
-						</div>
-
-						{/* Thumbnail Selector */}
-						{images.length > 1 && (
-							<div className="flex items-center gap-3 overflow-x-auto pb-2">
-								{images.map((img, idx) => (
-									<button
-										key={idx}
-										type="button"
-										onClick={() => setSelectedImageIndex(idx)}
-										className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
-											selectedImageIndex === idx
-												? "border-primary shadow-sm"
-												: "border-border-delicate opacity-70 hover:opacity-100"
-										}`}
+						{hasVisuals ? (
+							<>
+								{/* Main High-Res Image with Zoom Magnifier */}
+								<div
+									className="group relative aspect-[4/5] w-full overflow-hidden rounded-2xl border border-border-delicate bg-surface-card cursor-zoom-in shadow-sm"
+									onMouseEnter={() => setIsZoomed(true)}
+									onMouseLeave={() => setIsZoomed(false)}
+									onMouseMove={handleMouseMove}
+								>
+									<div
+										className="relative h-full w-full"
+										style={{
+											transform: isZoomed ? "scale(2.2)" : "scale(1)",
+											transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+											transition: isZoomed ? "transform 0.05s ease-out" : "transform 0.3s ease-out",
+										}}
 									>
 										<Image
-											src={img}
-											alt={`Thumbnail visual ${idx + 1}`}
+											src={currentImage}
+											alt={draft.name || "Formulation visual"}
 											fill
-											sizes="80px"
+											priority
+											sizes="(max-width: 1024px) 100vw, 50vw"
 											className="object-cover"
 										/>
-									</button>
-								))}
+									</div>
+
+									{/* Out of Stock Overlay */}
+									{isOutOfStock && (
+										<div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-xs">
+											<span className="rounded-full bg-error px-6 py-2 text-sm font-bold uppercase tracking-wider text-white shadow-lg">
+												Out of Stock
+											</span>
+										</div>
+									)}
+
+									{/* Floating Badges */}
+									<div className="pointer-events-none absolute top-4 left-4 flex flex-col gap-2">
+										{draft.nafdacRegNo && (
+											<span className="rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary shadow-xs">
+												{draft.nafdacRegNo}
+											</span>
+										)}
+										<span className="rounded-full bg-secondary-fixed/90 backdrop-blur-md px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed shadow-xs">
+											Melanin Tested
+										</span>
+									</div>
+
+									{/* Zoom Hint */}
+									<div className="pointer-events-none absolute bottom-4 right-4 rounded-full bg-black/50 backdrop-blur-md px-3 py-1 text-[10px] font-medium text-white transition-opacity group-hover:opacity-0">
+										Hover to zoom
+									</div>
+								</div>
+
+								{/* Thumbnail Selector */}
+								{images.length > 1 && (
+									<div className="flex items-center gap-3 overflow-x-auto pb-2">
+										{images.map((img, idx) => (
+											<button
+												key={idx}
+												type="button"
+												onClick={() => setSelectedImageIndex(idx)}
+												className={`relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border-2 transition-all ${
+													selectedImageIndex === idx
+														? "border-primary shadow-sm"
+														: "border-border-delicate opacity-70 hover:opacity-100"
+												}`}
+											>
+												<Image
+													src={img}
+													alt={`Thumbnail visual ${idx + 1}`}
+													fill
+													sizes="80px"
+													className="object-cover"
+												/>
+											</button>
+										))}
+									</div>
+								)}
+							</>
+						) : (
+							<div
+								data-testid="preview-empty-visual-placeholder"
+								className="flex aspect-[4/5] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border-delicate bg-surface-container-low/50 p-8 text-center"
+							>
+								<div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-card border border-border-delicate text-on-surface-variant/70 shadow-xs">
+									<ImageIcon className="h-8 w-8 text-secondary-dark" />
+								</div>
+								<h3 className="mt-4 font-serif text-lg font-medium text-primary">
+									No Formulation Visuals Uploaded
+								</h3>
+								<p className="mt-1.5 max-w-xs text-xs text-on-surface-variant leading-relaxed">
+									Upload product photography in the formulation editor to preview the interactive gallery and magnifier here.
+								</p>
 							</div>
 						)}
 					</div>
@@ -238,8 +266,7 @@ export function ProductPreviewView({
 
 						{/* Description */}
 						<p className="text-sm sm:text-base leading-relaxed text-on-surface-variant font-light whitespace-pre-line">
-							{draft.description ||
-								"An ultra-refined Parisian botanical formulation imported directly from France to protect and nurture melanin-rich skin barriers."}
+							{draft.description || "No formulation narrative entered yet."}
 						</p>
 
 						{/* Clinical Specs Grid */}
@@ -253,7 +280,7 @@ export function ProductPreviewView({
 										pH Level
 									</span>
 									<span className="text-sm font-semibold text-primary">
-										{draft.phLevel || "5.2 - 5.5"}
+										{draft.phLevel || "Not specified"}
 									</span>
 								</div>
 
@@ -262,7 +289,7 @@ export function ProductPreviewView({
 										Texture
 									</span>
 									<span className="text-sm font-semibold text-primary">
-										{draft.texture || "Silky fast-absorbing micro-glaze"}
+										{draft.texture || "Not specified"}
 									</span>
 								</div>
 
@@ -271,7 +298,7 @@ export function ProductPreviewView({
 										Skin Type
 									</span>
 									<span className="text-sm font-semibold text-primary">
-										{draft.skinType || "All Fitzpatrick skin phototypes"}
+										{draft.skinType || "Not specified"}
 									</span>
 								</div>
 
@@ -282,7 +309,7 @@ export function ProductPreviewView({
 									<span className="text-xs font-medium text-primary line-clamp-2">
 										{keyActivesList.length > 0
 											? keyActivesList.join(", ")
-											: "French Plant Squalane, Botanical Peptides"}
+											: "Not specified"}
 									</span>
 								</div>
 							</div>
@@ -352,7 +379,7 @@ export function ProductPreviewView({
 										</Accordion.Trigger>
 									</Accordion.Header>
 									<Accordion.Content className="pb-4 text-sm leading-relaxed text-on-surface-variant animate-in fade-in">
-										<p>{draft.bioActives}</p>
+										<p>{draft.bioActives || "No bio-actives details provided."}</p>
 									</Accordion.Content>
 								</Accordion.Item>
 
@@ -364,7 +391,7 @@ export function ProductPreviewView({
 										</Accordion.Trigger>
 									</Accordion.Header>
 									<Accordion.Content className="pb-4 text-xs font-mono leading-relaxed text-on-surface-variant animate-in fade-in">
-										<p>{draft.inci}</p>
+										<p>{draft.inci || "No INCI ingredients list provided."}</p>
 									</Accordion.Content>
 								</Accordion.Item>
 
@@ -376,7 +403,7 @@ export function ProductPreviewView({
 										</Accordion.Trigger>
 									</Accordion.Header>
 									<Accordion.Content className="pb-4 text-sm leading-relaxed text-on-surface-variant animate-in fade-in">
-										<p>{draft.ritual}</p>
+										<p>{draft.ritual || "No daily ritual guide provided."}</p>
 									</Accordion.Content>
 								</Accordion.Item>
 
@@ -390,7 +417,7 @@ export function ProductPreviewView({
 									<Accordion.Content className="pb-4 text-sm leading-relaxed text-on-surface-variant animate-in fade-in">
 										<div className="flex items-start gap-2.5">
 											<ShieldCheck className="h-5 w-5 text-secondary-dark flex-shrink-0 mt-0.5" />
-											<p>{draft.nafdacRegNo}</p>
+											<p>{draft.nafdacRegNo || "Pending NAFDAC registration."}</p>
 										</div>
 									</Accordion.Content>
 								</Accordion.Item>

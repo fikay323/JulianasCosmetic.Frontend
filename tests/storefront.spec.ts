@@ -611,21 +611,21 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 		await expect(featuredBtn).toContainText(expectedNext);
 	});
 
-	test("Admin can edit description and formulation properties of existing product via Edit modal", async ({ page }) => {
+	test("Admin can edit description and formulation properties of existing product via dedicated Edit page", async ({ page }) => {
 		await page.goto("/admin/products");
 		const productsTable = page.locator('[data-testid="products-table"]');
 		await expect(productsTable).toBeVisible({ timeout: 15000 });
 
 		const productRow = page.locator('tr[data-testid="product-row"]').first();
-		const editBtn = productRow.locator('button:has-text("Edit"), button[aria-label*="Edit" i]').first();
-		await expect(editBtn).toBeVisible();
+		const editLink = productRow.locator('a:has-text("Edit"), a[aria-label*="Edit" i]').first();
+		await expect(editLink).toBeVisible();
 
-		// Open edit modal
-		await editBtn.click();
+		// Navigate to dedicated edit page
+		await editLink.click();
+		await expect(page).toHaveURL(/\/admin\/products\/[^/]+\/edit/, { timeout: 15000 });
 
-		// Assert modal is open
-		const modalHeader = page.locator("text=/Edit Formulation Properties/i").first();
-		await expect(modalHeader).toBeVisible();
+		// Assert edit page header is visible
+		await expect(page.locator("h1")).toContainText(/Edit /i);
 
 		// Edit description
 		const descTextarea = page.locator("textarea").first();
@@ -633,13 +633,13 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 		const testDescription = "Updated Parisian botanical elixir with refined French plant peptides and antioxidant protection.";
 		await descTextarea.fill(testDescription);
 
-		// Submit modal
-		const saveBtn = page.locator('button:has-text("Save Changes")').first();
+		// Save formulation changes
+		const saveBtn = page.locator('[data-testid="save-formulation-btn"], button:has-text("Save Changes")').first();
 		await saveBtn.click();
 
-		// Assert modal closes and success toast appears
-		await expect(modalHeader).not.toBeVisible({ timeout: 5000 });
-		const successToast = page.locator("text=/Successfully updated/i").first();
+		// Assert navigates back to admin products and success toast appears
+		await expect(page).toHaveURL(/\/admin\/products$/, { timeout: 15000 });
+		const successToast = page.locator("text=/Formulation Updated/i").first();
 		await expect(successToast).toBeVisible();
 	});
 

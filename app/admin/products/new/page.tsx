@@ -295,7 +295,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="e.g. Luminous Peptide Glaze Serum"
 										value={draft.name}
 										onChange={(e) => updateField("name", e.target.value)}
-										className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm text-primary placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-4 py-3 text-sm text-primary placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none"
 									/>
 									<span className="mt-1 block text-[10px] text-on-surface-variant font-mono">
 										Cloudinary Folder: julianas-cosmetics/products/{draft.slug}
@@ -312,7 +312,7 @@ export default function NewProductPage(): React.JSX.Element {
 											onChange={(e) =>
 												updateField("category", e.target.value as ProductCategory)
 											}
-											className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+											className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 										>
 											{CATEGORIES.map((cat) => (
 												<option key={cat} value={cat}>
@@ -331,7 +331,7 @@ export default function NewProductPage(): React.JSX.Element {
 											placeholder="30 ml / 1.0 fl. oz."
 											value={draft.size}
 											onChange={(e) => updateField("size", e.target.value)}
-											className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+											className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 										/>
 									</div>
 								</div>
@@ -346,7 +346,7 @@ export default function NewProductPage(): React.JSX.Element {
 											placeholder="Cellular Radiance & Multi-Peptide Barrier Glaze"
 											value={draft.tagline}
 											onChange={(e) => updateField("tagline", e.target.value)}
-											className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+											className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 										/>
 									</div>
 
@@ -359,7 +359,7 @@ export default function NewProductPage(): React.JSX.Element {
 											placeholder="NAFDAC Reg. No. 04-9218"
 											value={draft.nafdacRegNo}
 											onChange={(e) => updateField("nafdacRegNo", e.target.value)}
-											className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+											className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 										/>
 									</div>
 								</div>
@@ -374,7 +374,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="An ultra-concentrated Parisian botanical elixir infusing multi-peptides, pure French botanical seed oils, and 3% niacinamide to illuminate skin while reinforcing cellular lipid barriers..."
 										value={draft.description}
 										onChange={(e) => updateField("description", e.target.value)}
-										className="mt-1.5 min-h-[120px] w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 min-h-[120px] w-full resize-y rounded-lg border border-border-delicate bg-surface px-4 py-3 text-sm leading-relaxed text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 							</div>
@@ -409,7 +409,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="38500"
 										value={draft.price}
 										onChange={(e) => updateField("price", e.target.value)}
-										className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-4 py-3 text-base font-bold text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-4 py-3 text-base font-bold text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 
@@ -503,7 +503,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="5.2 - 5.5"
 										value={draft.phLevel}
 										onChange={(e) => updateField("phLevel", e.target.value)}
-										className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 
@@ -516,7 +516,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="Silky, fast-absorbing micro-glaze"
 										value={draft.texture}
 										onChange={(e) => updateField("texture", e.target.value)}
-										className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 
@@ -529,7 +529,7 @@ export default function NewProductPage(): React.JSX.Element {
 										placeholder="All Fitzpatrick skin phototypes (I - VI)"
 										value={draft.skinType}
 										onChange={(e) => updateField("skinType", e.target.value)}
-										className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 							</div>
@@ -543,7 +543,7 @@ export default function NewProductPage(): React.JSX.Element {
 									placeholder="5% Multi-Peptide Matrix, 3% Niacinamide, French Camellia Seed Oil"
 									value={draft.keyActives}
 									onChange={(e) => updateField("keyActives", e.target.value)}
-									className="mt-1.5 w-full rounded-xl border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+									className="mt-1.5 w-full rounded-lg border border-border-delicate bg-surface px-3 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 								/>
 							</div>
 						</div>
@@ -573,7 +573,7 @@ export default function NewProductPage(): React.JSX.Element {
 										rows={3}
 										value={draft.bioActives}
 										onChange={(e) => updateField("bioActives", e.target.value)}
-										className="mt-1.5 w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full resize-y rounded-lg border border-border-delicate bg-surface px-4 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 
@@ -585,7 +585,7 @@ export default function NewProductPage(): React.JSX.Element {
 										rows={3}
 										value={draft.inci}
 										onChange={(e) => updateField("inci", e.target.value)}
-										className="mt-1.5 w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-2.5 font-mono text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full resize-y rounded-lg border border-border-delicate bg-surface px-4 py-2.5 font-mono text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 
@@ -597,7 +597,7 @@ export default function NewProductPage(): React.JSX.Element {
 										rows={3}
 										value={draft.ritual}
 										onChange={(e) => updateField("ritual", e.target.value)}
-										className="mt-1.5 w-full resize-y rounded-xl border border-border-delicate bg-surface px-4 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
+										className="mt-1.5 w-full resize-y rounded-lg border border-border-delicate bg-surface px-4 py-2.5 text-xs text-primary focus:border-primary focus:outline-none"
 									/>
 								</div>
 							</div>

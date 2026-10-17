@@ -36,22 +36,22 @@ export function generateInitialDraftSlug(): string {
 export const INITIAL_DRAFT_STATE: ProductDraftState = {
 	name: "",
 	slug: "",
-	tagline: "Cellular Radiance & French Botanical Protection",
+	tagline: "",
 	price: "",
 	category: "Serums",
-	size: "50 ml / 1.7 fl. oz.",
+	size: "",
 	stockStatus: "In Stock",
 	inStock: true,
 	featured: false,
-	nafdacRegNo: "NAFDAC Reg. No. 04-9988",
+	nafdacRegNo: "",
 	description: "",
-	keyActives: "French Plant Squalane, 3% Niacinamide, Botanical Peptides",
-	phLevel: "5.2 - 5.5",
-	texture: "Silky, fast-absorbing micro-glaze",
-	skinType: "All Fitzpatrick skin phototypes (I - VI)",
-	bioActives: "Formulated in Paris with pure dermatological-grade French botanical actives to restore epidermal radiance.",
-	inci: "Aqua (Water), Botanical Squalane, Glycerin, Niacinamide, Camellia Oleifera Seed Oil, Sodium Hyaluronate, Tocopherol.",
-	ritual: "Dispense 2–3 drops onto freshly cleansed, damp skin morning and evening. Gently press into face, neck, and collarbones.",
+	keyActives: "",
+	phLevel: "",
+	texture: "",
+	skinType: "",
+	bioActives: "",
+	inci: "",
+	ritual: "",
 	visuals: [],
 	lastSavedAt: null,
 };
@@ -94,8 +94,16 @@ export function useProductDraft() {
 		draft.price.trim() ||
 		draft.description.trim() ||
 		draft.visuals.length > 0 ||
-		draft.tagline !== INITIAL_DRAFT_STATE.tagline ||
-		draft.category !== INITIAL_DRAFT_STATE.category
+		draft.tagline.trim() ||
+		draft.size.trim() ||
+		draft.nafdacRegNo.trim() ||
+		draft.keyActives.trim() ||
+		draft.phLevel.trim() ||
+		draft.texture.trim() ||
+		draft.skinType.trim() ||
+		draft.bioActives.trim() ||
+		draft.inci.trim() ||
+		draft.ritual.trim()
 	);
 
 	// Debounced localStorage sync (300ms) for high performance typing
