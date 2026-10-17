@@ -111,6 +111,9 @@
 
 /* Custom Component Utilities */
 @layer utilities {
+	.rounded-DEFAULT {
+		border-radius: var(--radius-DEFAULT, 1rem);
+	}
 	.shadow-card-float {
 		box-shadow: 0 4px 20px -2px rgba(31, 41, 55, 0.03), 0 12px 32px -4px rgba(31, 41, 55, 0.05);
 	}

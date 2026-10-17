@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { formatNaira, sanitizePhoneNumber } from "@/src/lib/utils";
 import { useToast } from "@/src/context/ToastContext";
+import { AdminPageHeader } from "@/src/components/admin/AdminPageHeader";
 import type { Order, OrderStatus } from "@/src/types/store";
 
 export default function AdminOrdersPage(): React.JSX.Element {
@@ -210,43 +211,35 @@ export default function AdminOrdersPage(): React.JSX.Element {
 	return (
 		<div className="min-h-screen bg-surface py-8 sm:py-14">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				{/* Top Navigation & Breadcrumbs */}
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border-delicate pb-6">
-					<div>
-						<div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-							<Link href="/admin" className="hover:text-primary transition-colors">
-								Admin Portal
+				{/* Top Central Reusable Header */}
+				<AdminPageHeader
+					breadcrumbs={[
+						{ label: "Admin Portal", href: "/admin" },
+						{ label: "Orders Management", active: true },
+					]}
+					title="Concierge Orders Registry"
+					description="Review customer concierge requests, agree delivery fees in ₦, and progress orders to Paid & Dispatched."
+					actions={
+						<>
+							<button
+								type="button"
+								onClick={handleRefresh}
+								disabled={loading}
+								className="inline-flex items-center gap-2 rounded-full border border-border-delicate bg-surface-card px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-surface-container-low disabled:opacity-50 cursor-pointer"
+							>
+								<RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+								<span>Refresh</span>
+							</button>
+							<Link
+								href="/admin"
+								className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-primary/90"
+							>
+								<ArrowLeft className="h-3.5 w-3.5" />
+								<span>Admin Hub</span>
 							</Link>
-							<span>/</span>
-							<span className="text-secondary-dark">Orders Management</span>
-						</div>
-						<h1 className="mt-2 font-serif text-2xl font-medium text-primary sm:text-4xl">
-							Concierge Orders Registry
-						</h1>
-						<p className="mt-1 text-xs text-on-surface-variant leading-relaxed">
-							Review customer concierge requests, agree delivery fees in ₦, and progress orders to Paid & Dispatched.
-						</p>
-					</div>
-
-					<div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-						<button
-							type="button"
-							onClick={handleRefresh}
-							disabled={loading}
-							className="inline-flex items-center gap-2 rounded-full border border-border-delicate bg-surface-card px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-surface-container-low disabled:opacity-50"
-						>
-							<RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-							<span>Refresh</span>
-						</button>
-						<Link
-							href="/admin"
-							className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white transition-all hover:bg-primary/90"
-						>
-							<ArrowLeft className="h-3.5 w-3.5" />
-							<span>Admin Hub</span>
-						</Link>
-					</div>
-				</div>
+						</>
+					}
+				/>
 
 				{/* Error State */}
 				{error && (

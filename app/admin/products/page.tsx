@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { formatNaira } from "@/src/lib/utils";
 import { useToast } from "@/src/context/ToastContext";
+import { AdminPageHeader } from "@/src/components/admin/AdminPageHeader";
 import type { Product } from "@/src/types/store";
 
 export default function AdminProductsPage(): React.JSX.Element {
@@ -229,44 +230,36 @@ export default function AdminProductsPage(): React.JSX.Element {
 	return (
 		<div className="min-h-screen bg-surface py-8 sm:py-14">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				{/* Top Header & Actions */}
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border-delicate pb-6">
-					<div>
-						<div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
-							<Link href="/admin" className="hover:text-primary transition-colors">
-								Admin Portal
+				{/* Top Central Reusable Header */}
+				<AdminPageHeader
+					breadcrumbs={[
+						{ label: "Admin Portal", href: "/admin" },
+						{ label: "Products Management", active: true },
+					]}
+					title="Botanical Catalog & Inventory"
+					description="Add imported Parisian formulations, adjust prices in ₦, toggle stock availability, and select featured bestsellers."
+					actions={
+						<>
+							<button
+								type="button"
+								onClick={handleRefresh}
+								disabled={loading}
+								className="inline-flex items-center gap-2 rounded-full border border-border-delicate bg-surface-card px-4 py-2.5 text-xs font-semibold text-primary shadow-sm hover:bg-surface-container-low transition-colors cursor-pointer"
+							>
+								<RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
+								<span>Refresh</span>
+							</button>
+
+							<Link
+								href="/admin/products/new"
+								className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all active:scale-95"
+							>
+								<Plus className="h-4 w-4" />
+								<span>Add Formulation</span>
 							</Link>
-							<span>/</span>
-							<span className="text-secondary-dark">Products Management</span>
-						</div>
-						<h1 className="mt-2 font-serif text-2xl font-medium text-primary sm:text-4xl">
-							Botanical Catalog & Inventory
-						</h1>
-						<p className="mt-1 text-xs text-on-surface-variant leading-relaxed">
-							Add imported Parisian formulations, adjust prices in ₦, toggle stock availability, and select featured bestsellers.
-						</p>
-					</div>
-
-					<div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-						<button
-							type="button"
-							onClick={handleRefresh}
-							disabled={loading}
-							className="inline-flex items-center gap-2 rounded-full border border-border-delicate bg-surface-card px-4 py-2.5 text-xs font-semibold text-primary shadow-sm hover:bg-surface-container-low transition-colors"
-						>
-							<RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
-							<span>Refresh</span>
-						</button>
-
-						<Link
-							href="/admin/products/new"
-							className="inline-flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-white shadow-md hover:bg-primary-dark transition-all active:scale-95"
-						>
-							<Plus className="h-4 w-4" />
-							<span>Add Formulation</span>
-						</Link>
-					</div>
-				</div>
+						</>
+					}
+				/>
 
 				{/* Inventory Metrics Strip */}
 				<div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-4">

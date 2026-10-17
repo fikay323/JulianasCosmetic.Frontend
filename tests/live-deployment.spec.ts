@@ -225,9 +225,9 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		const descTextarea = page.locator("textarea").first();
 		await expect(descTextarea).toHaveValue("");
 
-		// Assert inputs and textareas use rounded-lg
-		await expect(nameInput).toHaveClass(/rounded-lg/);
-		await expect(descTextarea).toHaveClass(/rounded-lg/);
+		// Assert inputs and textareas use rounded-DEFAULT
+		await expect(nameInput).toHaveClass(/rounded-DEFAULT/);
+		await expect(descTextarea).toHaveClass(/rounded-DEFAULT/);
 
 		// Switch to Preview Mode without uploading an image
 		const previewBtn = page.locator('button:has-text("Preview Storefront")');
@@ -270,11 +270,11 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		await expect(page.locator("text=/4. Clinical Specifications/i")).toBeVisible();
 		await expect(page.locator("text=/5. Formulation Transparency & Protocols/i")).toBeVisible();
 
-		// Assert rounded-lg border radius consistency on inputs and textareas
+		// Assert rounded-DEFAULT border radius consistency on inputs and textareas
 		const nameInput = page.locator('input[placeholder*="Luminous Peptide"]').first();
-		await expect(nameInput).toHaveClass(/rounded-lg/);
+		await expect(nameInput).toHaveClass(/rounded-DEFAULT/);
 		const descTextarea = page.locator("textarea").first();
-		await expect(descTextarea).toHaveClass(/rounded-lg/);
+		await expect(descTextarea).toHaveClass(/rounded-DEFAULT/);
 
 		// Test preview toggle in edit page
 		const previewBtn = page.locator('button:has-text("Preview Storefront")');

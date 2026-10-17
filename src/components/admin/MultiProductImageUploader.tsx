@@ -360,9 +360,9 @@ export function MultiProductImageUploader({
 						{pendingFiles.map((pending) => (
 							<div
 								key={pending.id}
-								className="relative rounded-xl border border-border-delicate bg-surface-card p-2 space-y-1.5 overflow-hidden"
+								className="relative rounded-DEFAULT border border-border-delicate bg-surface-card p-2 space-y-1.5 overflow-hidden"
 							>
-								<div className="relative aspect-square w-full overflow-hidden rounded-lg bg-surface-container-low">
+								<div className="relative aspect-square w-full overflow-hidden rounded-DEFAULT bg-surface-container-low">
 									{/* eslint-disable-next-line @next/next/no-img-element */}
 									<img
 										src={pending.localPreviewUrl}
@@ -440,7 +440,7 @@ export function MultiProductImageUploader({
 									}`}
 								>
 									{/* Thumbnail Visual */}
-									<div className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-container-low">
+									<div className="relative aspect-[4/5] w-full overflow-hidden rounded-DEFAULT bg-surface-container-low">
 										<Image
 											src={visual.url}
 											alt={`Formulation visual ${index + 1}`}
