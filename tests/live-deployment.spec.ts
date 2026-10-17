@@ -44,7 +44,7 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		await expect(page.locator("text=/5. Formulation Transparency & Protocols/i")).toBeVisible();
 
 		// Verify Cloudinary folder indicator is displayed
-		await expect(page.locator("text=/Cloudinary Folder: julianas-cosmetics\\/products\\//i")).toBeVisible();
+		await expect(page.locator("text=/Cloudinary Folder: julianas-cosmetics\\/products\\//i").first()).toBeVisible();
 	});
 
 	test("3. Multi-image uploader supports local preview, direct upload, and visual reordering on live deployment", async ({ page }) => {
