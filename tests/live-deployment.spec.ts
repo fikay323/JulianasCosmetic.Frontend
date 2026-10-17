@@ -36,15 +36,12 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		await expect(page.locator("text=/1. Formulation Identity & Classification/i")).toBeVisible();
 		// Section 2: Pricing & Stock Availability
 		await expect(page.locator("text=/2. Pricing & Stock Availability/i")).toBeVisible();
-		// Section 3: Visual Gallery & Cloudinary CDN
-		await expect(page.locator("text=/3. Formulation Visual Gallery & Cloudinary CDN/i")).toBeVisible();
+		// Section 3: Visual Gallery
+		await expect(page.locator("text=/3. Formulation Visual Gallery/i")).toBeVisible();
 		// Section 4: Clinical Specifications
 		await expect(page.locator("text=/4. Clinical Specifications/i")).toBeVisible();
 		// Section 5: Formulation Transparency & Protocols (Accordions)
 		await expect(page.locator("text=/5. Formulation Transparency & Protocols/i")).toBeVisible();
-
-		// Verify Cloudinary folder indicator is displayed
-		await expect(page.locator("text=/Cloudinary Folder: julianas-cosmetics\\/products\\//i").first()).toBeVisible();
 	});
 
 	test("3. Multi-image uploader supports local preview, direct upload, and visual reordering on live deployment", async ({ page }) => {
@@ -82,7 +79,7 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		// Pre-upload preview card
 		const previewCard = page.locator('[data-testid="image-local-preview-card"]');
 		await expect(previewCard).toBeVisible();
-		await expect(previewCard).toContainText("Preview before direct Cloudinary upload");
+		await expect(previewCard).toContainText("Preview before upload");
 		await expect(previewCard).toContainText("live-first.png");
 		await expect(previewCard).toContainText("live-second.png");
 
@@ -266,7 +263,7 @@ test.describe("Live Deployed Production Verification (Vercel)", () => {
 		// Assert 5 editorial sections exist on edit page
 		await expect(page.locator("text=/1. Formulation Identity & Classification/i")).toBeVisible();
 		await expect(page.locator("text=/2. Pricing & Stock Availability/i")).toBeVisible();
-		await expect(page.locator("text=/3. Formulation Visual Gallery & Cloudinary CDN/i")).toBeVisible();
+		await expect(page.locator("text=/3. Formulation Visual Gallery/i")).toBeVisible();
 		await expect(page.locator("text=/4. Clinical Specifications/i")).toBeVisible();
 		await expect(page.locator("text=/5. Formulation Transparency & Protocols/i")).toBeVisible();
 

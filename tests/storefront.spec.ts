@@ -684,7 +684,7 @@ test.describe("Tier 3: Cross-Feature Combinations", () => {
 
 		const localPreviewCard = page.locator('[data-testid="image-local-preview-card"]');
 		await expect(localPreviewCard).toBeVisible();
-		await expect(localPreviewCard).toContainText("Preview before direct Cloudinary upload");
+		await expect(localPreviewCard).toContainText("Preview before upload");
 		await expect(localPreviewCard).toContainText("parisian-elixir.png");
 
 		// 2. Click "Confirm & Upload All" and verify it uploads directly to Cloudinary and transitions to Uploaded Visuals state

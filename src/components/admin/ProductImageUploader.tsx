@@ -267,14 +267,14 @@ export function ProductImageUploader({
 								{selectedFile.name} ({formatFileSize(selectedFile.size)})
 							</p>
 							<p className="text-[11px] text-on-surface-variant leading-relaxed">
-								Review the image preview above. Click <strong>Confirm &amp; Upload</strong> to store it in Cloudinary, or discard to pick a different file.
+								Review the image preview above. Click <strong>Confirm &amp; Upload</strong> to complete the upload, or discard to pick a different file.
 							</p>
 
 							{/* Upload Progress Bar */}
 							{isUploading && (
 								<div className="space-y-1.5 pt-1" data-testid="upload-progress-container">
 									<div className="flex items-center justify-between text-[11px] font-semibold text-primary">
-										<span>Uploading to Cloudinary...</span>
+										<span>Uploading...</span>
 										<span data-testid="upload-progress-percent">{uploadProgress}%</span>
 									</div>
 									<div
@@ -350,7 +350,7 @@ export function ProductImageUploader({
 								<span>Uploaded &amp; Active</span>
 							</div>
 							<p className="text-[11px] text-on-surface-variant leading-relaxed">
-								This image is currently active. Removing or replacing it will permanently delete the previous asset from Cloudinary so no orphaned images remain.
+								This image is currently active on the boutique storefront. Removing or replacing it will immediately update your presentation.
 							</p>
 
 							<div className="flex flex-wrap items-center gap-2.5 pt-1">

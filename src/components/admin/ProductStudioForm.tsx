@@ -520,7 +520,7 @@ export function ProductStudioForm({
 					}
 					description={
 						mode === "create"
-							? "Create a luxury Parisian formulation, upload high-res visuals directly to Cloudinary, configure clinical bio-actives, and preview before publishing."
+							? "Create a luxury Parisian formulation, upload high-res visuals, configure clinical bio-actives, and preview before publishing."
 							: "Modify boutique formulation details, rearrange gallery visuals, adjust clinical parameters, and preview before saving."
 					}
 					actions={
@@ -659,11 +659,6 @@ export function ProductStudioForm({
 										onChange={(e) => updateField("name", e.target.value)}
 										className="mt-1.5 w-full rounded-DEFAULT border border-border-delicate bg-surface px-4 py-3 text-sm text-primary placeholder:text-on-surface-variant/40 focus:border-primary focus:outline-none"
 									/>
-									{values.slug && (
-										<span className="mt-1 block text-[10px] text-on-surface-variant font-mono">
-											Cloudinary Folder: julianas-cosmetics/products/{values.slug}
-										</span>
-									)}
 								</div>
 
 								<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -825,10 +820,10 @@ export function ProductStudioForm({
 								</div>
 								<div>
 									<h2 className="font-serif text-lg font-medium text-primary">
-										3. Formulation Visual Gallery &amp; Cloudinary CDN
+										3. Formulation Visual Gallery
 									</h2>
 									<p className="text-[11px] text-on-surface-variant">
-										Images stored in Cloudinary folder: <code>julianas-cosmetics/products/{values.slug || productId || "new-product"}</code>. The first visual is the primary boutique cover.
+										High-resolution formulation photography. The first visual will be used as the primary boutique cover.
 									</p>
 								</div>
 							</div>

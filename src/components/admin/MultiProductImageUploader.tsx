@@ -223,7 +223,7 @@ export function MultiProductImageUploader({
 		if (newlyUploaded.length > 0) {
 			onVisualsChange([...visuals, ...newlyUploaded]);
 			toast.success(
-				`${newlyUploaded.length} formulation ${newlyUploaded.length === 1 ? "visual" : "visuals"} uploaded to Cloudinary.`,
+				`${newlyUploaded.length} formulation ${newlyUploaded.length === 1 ? "visual" : "visuals"} uploaded successfully.`,
 				"Upload Successful"
 			);
 		}
@@ -285,10 +285,10 @@ export function MultiProductImageUploader({
 			<div className="flex items-center justify-between">
 				<div>
 					<label className="block text-xs font-semibold uppercase tracking-wider text-primary">
-						Formulation Visuals ({visuals.length}) *
+						Formulation Visuals ({visuals.length})
 					</label>
 					<p className="mt-0.5 text-[11px] text-on-surface-variant">
-						Directly uploaded to Cloudinary • Drag or use arrows to rearrange • First image is the primary cover visual
+						Drag or use arrows to rearrange • First image is the primary cover visual
 					</p>
 				</div>
 
@@ -318,13 +318,13 @@ export function MultiProductImageUploader({
 					data-testid="image-local-preview-card"
 					className="rounded-2xl border-2 border-secondary bg-surface p-4 shadow-sm space-y-3"
 				>
-					<div className="flex items-center justify-between">
-						<div className="flex items-center gap-2">
+					<div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex flex-wrap items-center gap-2">
 							<span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-fixed px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-on-secondary-fixed">
 								<span>{pendingFiles.length} New Visuals Selected</span>
 							</span>
 							<span className="text-xs text-on-surface-variant">
-								Preview before direct Cloudinary upload
+								Preview before upload
 							</span>
 						</div>
 
@@ -433,11 +433,10 @@ export function MultiProductImageUploader({
 											setDraggedIndex(null);
 										}
 									}}
-									className={`group relative rounded-2xl border bg-surface p-2.5 transition-all shadow-xs ${
-										isCover
-											? "border-secondary ring-2 ring-secondary/20"
-											: "border-border-delicate hover:border-primary/40"
-									}`}
+									className={`group relative rounded-2xl border bg-surface p-2.5 transition-all shadow-xs ${isCover
+										? "border-secondary ring-2 ring-secondary/20"
+										: "border-border-delicate hover:border-primary/40"
+										}`}
 								>
 									{/* Thumbnail Visual */}
 									<div className="relative aspect-[4/5] w-full overflow-hidden rounded-DEFAULT bg-surface-container-low">
@@ -505,7 +504,7 @@ export function MultiProductImageUploader({
 											disabled={deletingId === visual.id}
 											data-testid="remove-uploaded-image-btn"
 											className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-error/20 bg-error-container/40 text-error hover:bg-error hover:text-white transition-colors disabled:opacity-50"
-											title="Remove & delete from Cloudinary"
+											title="Remove visual"
 											aria-label={`Remove visual ${index + 1}`}
 										>
 											{deletingId === visual.id ? (
@@ -542,7 +541,7 @@ export function MultiProductImageUploader({
 						Click to select formulation images from your device
 					</p>
 					<p className="mt-1 text-[11px] text-on-surface-variant">
-						Select multiple files at once • JPG, PNG, WebP, AVIF up to 10 MB each • Direct fast upload to Cloudinary
+						Select multiple files at once • High-resolution JPG, PNG, WebP or AVIF up to 10 MB each
 					</p>
 				</div>
 			)}
